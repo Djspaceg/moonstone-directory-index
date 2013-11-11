@@ -19,3 +19,9 @@
 [submodule "lib/enyo-ilib"]
 	path = lib/enyo-ilib
 	url = ../enyo-ilib.git
+[submodule "node"]
+	path = node
+	url = https://github.com/joyent/node.git
+[submodule "node-fastcgi-application"]
+	path = node-fastcgi-application
+	url = https://github.com/samcday/node-fastcgi-application.git
