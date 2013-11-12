@@ -1,0 +1,42 @@
+#
+# For a full breakdown of the mod_autoindex module:
+# http://apache.org/docs/2.2/mod/mod_autoindex.html
+#
+
+	# ENABLE INDEXING
+	Options +FollowSymLinks +Indexes
+
+	# INDEX OPTIONS
+	IndexOptions +Charset=UTF-8 +FancyIndexing +IgnoreCase +FoldersFirst +SuppressHTMLPreamble +HTMLTable +SuppressRules +SuppressDescription +NameWidth=*  +IconHeight=24 +IconWidth=24 +VersionSort
+	# IndexOptions +XHTML 
+
+	# HIDE /theme DIRECTORY
+	IndexIgnore .htaccess /web
+
+#
+# GENERAL ICONS (BLANK, DIRECTORY, PARENT DIRECTORY)
+#
+
+	AddIcon (DIR,/web/icons/128/folder.png) ^^DIRECTORY^^
+	AddIcon (DIR,/web/icons/128/parent.png) ..
+
+#
+# EXTENSION SPECIFIC ICONS
+#
+
+	AddIcon (IMG,/web/icons/64/dw.png) .md
+	AddIcon (IMG,/web/icons/64/gif.png) .gif
+	AddIcon (IMG,/web/icons/64/png.png) .png
+	AddIcon (IMG,/web/icons/64/jpeg.png) .jpg .jpeg
+	AddIcon (IMG,/web/icons/64/css.png) .css .less
+	AddIcon (IMG,/web/icons/64/js.png) .js
+	AddIcon (IMG,/web/icons/64/site.png) .design .json
+	AddIcon (IMG,/web/icons/64/xml.png) .html .htm
+
+#
+# THEME FILES
+#
+
+	HeaderName /web/header.html
+	ReadmeName /web/footer.html
+	# IndexStyleSheet "/web/css/main.css"

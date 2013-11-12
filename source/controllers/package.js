@@ -1,3 +1,6 @@
 enyo.depends(
-	"controllers.js"
+	"controllers.js",
+	"DirectoryIndex.js",
+	"DirectoryIndexRow.js",
+	"LinkButton.js"
 );
