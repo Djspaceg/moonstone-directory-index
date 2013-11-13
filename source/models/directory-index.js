@@ -12,6 +12,8 @@
 var fs = require("fs"),
 	path = require("path");
 
+exports.IGNORE = /^\./;
+
 exports.getDirectory = function(p, funIn) {
 	p = path.normalize(p);
 	fs.readdir(p, function (err, files) {
@@ -23,21 +25,27 @@ exports.getDirectory = function(p, funIn) {
 		files.map(function (file) {
 			return path.join(p, file);
 		}).filter(function (file) {
-			return fs.statSync(file).isFile();
+			return !(path.basename(file).match(exports.IGNORE));
+		// }).filter(function (file) {
+		// 	return fs.statSync(file).isFile();
 		}).forEach(function (file) {
-			// console.log("%s (%s)", file, path.extname(file));
-			var objStats = fs.statSync(file),
-				objFile = {
-					name: path.basename(p),
-					size: objStats.size,
-					mtime: objStats.mtime,
-					path: file,
-					ext: path.extname(file).replace(/^\./, "")
-			};
-			// console.log("File: ", objFile);
+			// console.log("- file: ", file, "- p:", p);
+			var objFile = exports.getFileInfo(file);
 			arrFiles.push(objFile);
 		});
 		// console.log("arrFiles: ", arrFiles);
 		funIn(arrFiles);
 	});
+};
+exports.getFileInfo = function(file) {
+	var objStats = fs.statSync(file),
+		objFile = {
+			name: path.basename(file),
+			size: objStats.size,
+			mtime: objStats.mtime,
+			path: file,
+			ext: path.extname(file).replace(/^\./, ""),
+			isDir: objStats.isDirectory()
+	};
+	return objFile;
 };

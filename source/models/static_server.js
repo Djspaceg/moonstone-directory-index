@@ -1,20 +1,26 @@
 #!/usr/bin/env node
 // 
-// original:
-// https://gist.github.com/rpflorence/701407
+// Based on rpflorence's Gist @ https://gist.github.com/rpflorence/701407
 // 
 
 var http = require("http"),
 	url  = require("url"),
 	path = require("path"),
 	fs   = require("fs"),
-	B    = require("./getDirectory.js"),
+	di   = require("./directory-index.js"),
 	port = process.argv[2] || 8888;
+
+// The base level of the server, nothing allowed below this.
+// Do not end this in a "/". If you want the server's root, set this to empty-string: ""
+http.DOCUMENT_ROOT = "/Users/blake/Source";
 
 http.createServer(function(request, response) {
 
-	var uri = url.parse(request.url).pathname
-		, filename = path.join(process.cwd(), uri);
+	var uri = url.parse(request.url).pathname,
+		filename = path.join(http.DOCUMENT_ROOT, uri);
+	// process.cwd()
+
+	// console.log("process.cwd()", process.cwd(), "request.url", request.url, "uri", uri);
 	
 	var writeEntireResponse = function(intStatus, strContent, objOptions) {
 		if (arguments.length == 1) {
@@ -34,9 +40,6 @@ http.createServer(function(request, response) {
 
 	fs.exists(filename, function(exists) {
 		if (!exists) {
-			// response.writeHead(404, {"Content-Type": "text/plain"});
-			// response.write("404 Not Found\n");
-			// response.end();
 			writeEntireResponse(404, "404 Not Found\n", {"Content-Type": "text/plain"})
 			return;
 		}
@@ -47,8 +50,16 @@ http.createServer(function(request, response) {
 					filename += '/index.html';
 				}
 				else {
-					var directoryIndex = B.getDirectory(filename, function(arrFiles) {
+					var directoryIndex = di.getDirectory(filename, function(arrFiles) {
 						// console.log("filename", filename, "directoryIndex", arrFiles);
+						var strDocRootRxRdy = http.DOCUMENT_ROOT.replace(/\//, "\/");
+						var re = new RegExp("^"+strDocRootRxRdy);
+						arrFiles = arrFiles.map(function (file) {
+							file.path = file.path.replace(re, "");
+							// file.path = file.path.replace("/^" + http.DOCUMENT_ROOT + "/", "");
+							console.log("file.path", file.path);
+							return file;
+						});
 						writeEntireResponse(arrFiles);						
 					});
 				}
@@ -57,17 +68,11 @@ http.createServer(function(request, response) {
 
 		fs.readFile(filename, "binary", function(err, file) {
 			if (err) {        
-				// response.writeHead(500, {"Content-Type": "text/plain"});
-				// response.write(err + "\n");
-				// response.end();
 				writeEntireResponse(500, err + "\n", {"Content-Type": "text/plain"})
 				return;
 			}
 
 			writeEntireResponse(file);
-			// response.writeHead(200);
-			// response.write(file, "binary");
-			// response.end();
 		});
 	});
 }).listen(parseInt(port, 10));
