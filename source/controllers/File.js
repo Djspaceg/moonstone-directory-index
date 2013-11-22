@@ -1,15 +1,15 @@
 enyo.kind({
-	name: "B.DirectoryIndexRow",
+	name: "B.File",
 	kind: "moon.Item",
 	// kind: "FittableColumns",
 	// mixins: ["FittableColumns"],
 	classes: "directory-index-row",
 	published: {
 		href: "",
-		icon: "",
+		// icon: "",
 		title: "",
 		size: "",
-		date: ""
+		lastModified: new Date()
 	},
 	handlers: {
 		ontap: "goToHref"
@@ -18,37 +18,47 @@ enyo.kind({
 	// layoutKind: "FittableColumnsLayout",
 	components: [
 		{kind: "FittableColumns", components: [
-			{kind: "moon.Icon", name: "icon", classes: "row-icon"},
+			// {kind: "moon.Icon", name: "icon", classes: "row-icon"},
 			{name: "title", classes: "row-title", fit: true,  mixins: ["moon.MarqueeSupport", "moon.MarqueeItem"]},
 			{name: "size", classes: "row-size text", mixins: ["moon.MarqueeItem"]},
-			{name: "date", classes: "row-date text", mixins: ["moon.MarqueeSupport", "moon.MarqueeItem"]}
+			{name: "lastModified", classes: "row-date-mod text", mixins: ["moon.MarqueeSupport", "moon.MarqueeItem"]}
 		]},
 	],
+	// bindings: [
+	// 	{from: ".model.href", to: ".href"},
+		// {from: ".model.icon", to: ".$.icon.src"},
+		// {from: ".model.name", to: ".$.title.content"},
+	// 	{from: ".model.size", to: ".$.size.content"},
+	// 	{from: ".model.date", to: ".$.date.content"},
+	// ],
     create: function() {
         this.inherited(arguments);
-        // this.hrefChanged();
-        this.iconChanged();
+        this.hrefChanged();
+        // this.iconChanged();
         this.titleChanged();
         this.sizeChanged();
-        this.dateChanged();
+        this.lastModifiedChanged();
     },
-	// hrefChanged: function() {
+	hrefChanged: function() {
+		// this.$.icon.set("src", this.icon);
+	},
+	// iconChanged: function() {
 	// 	this.$.icon.set("src", this.icon);
 	// },
-	iconChanged: function() {
-		this.$.icon.set("src", this.icon);
-	},
 	titleChanged: function() {
-		this.$.title.setContent(this.title);
+		console.log("Manually setting title, from changeEvent.");
+		this.$.title.setContent(this.title +" : Directly Set");
 	},
 	sizeChanged: function() {
 		this.$.size.setContent(this.size);
 	},
-	dateChanged: function() {
-		this.$.date.setContent(this.date);
+	lastModifiedChanged: function() {
+		this.$.lastModified.setContent(this.lastModified);
 	},
 	goToHref: function() {
-		this.app.goToHref(this.href);
+		// this.app.goToHref(this.href);
+		// window.alert("Go to: " + this.href);
+		console.log("goToHref",this);
 	},
 	fetch: function() {
 		/// Yes, this is stupid, but how else can I call the parent FROM the parent?

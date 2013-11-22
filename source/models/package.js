@@ -1,4 +1,6 @@
 enyo.depends(
-	"models.js"
-	// "getDirectory.js"
+	// "models.js",
+	"mdlFile.js",
+	"mdlDirectory.js",
+	"mdlFileSystem.js"
 );

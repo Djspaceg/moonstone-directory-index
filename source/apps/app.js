@@ -1,11 +1,11 @@
 enyo.kind({
 	name: "B.Application",
 	kind: "enyo.Application",
-	components: [{
-		name: "messageController",
-		kind: "enyo.Controller",
-		message: $L("Directory Index")
-	}],
+	// components: [{
+	// 	name: "messageController",
+	// 	kind: "enyo.Controller",
+	// 	message: $L("Directory Index")
+	// }],
 	view: "B.MainView",
 	published: {
 		loc: {
@@ -57,5 +57,14 @@ enyo.kind({
 			/// Open a new window using the name of the file as the identifier.
 			window.open(strHref, strFileName);
 		}
-	}
+	},
+	// we overloaded the default `start` method to also call our `update` method
+	// once the view is rendered
+	start: enyo.inherit(function (sup) {
+		return function () {
+			sup.apply(this, arguments);
+			console.log("Application.start",this);
+			this.$.mainView.update();
+		};
+	})
 });
