@@ -19,7 +19,7 @@ enyo.kind({
 		// the data comes back as an object with a property that is the
 		// array of days with games that week
 		// data.contents = new enyo.Collection(data, {model: mdlDirectory, owner: this, didFetch: true});
-		console.log("mdlFileSystem:Data.filesystem", data.filesystem);
+		// console.log("mdlFileSystem:Data.filesystem", data.filesystem);
 
 		return data.filesystem;
 	},

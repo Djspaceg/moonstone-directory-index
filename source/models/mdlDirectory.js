@@ -8,7 +8,14 @@ enyo.kind({
 		name: function () { 
 			return this.get("name");
 		},
+		title: function () { 
+			var strDir = this.get("name");
+			return strDir === "/" ? "/Home" : strDir.toWordCase();
+		},
 		// contents: []
+	},
+	computed: {
+		title: [{cached: true}],
 	},
 	// defaultSource: "jsonp",
 	// this is the url we want to use to request the data for the games but notice the `%.` that
@@ -29,7 +36,7 @@ enyo.kind({
 		// console.log("mdlDirectory:Data", data, this);
 		data.contents = new enyo.Collection(data.contents, {model: mdlFile, didFetch: true}); // owner: this <- causes .getId error
 		// this.$.directoryContents.set("collection", data.directory);
-		console.log("mdlDirectory:Data", data);
+		// console.log("mdlDirectory:Data", data);
 
 		return data;
 	},

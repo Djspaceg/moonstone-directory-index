@@ -24,13 +24,16 @@ html, body {
 	top: 0;
 }
 */
-.directory-index-row div+div {
+.directory-index-row>div>div {
+	padding: 0 1ex;
+}
+.directory-index-row div div+div {
 	display: inline-block;
 	font-family: "MuseoSans Light";
 }
 .directory-index-row .row-title {
 	font-family: "MuseoSans Medium";
-	width: 45%;
+	// width: 45%;
 }
-.directory-index-row .row-size {	width: 10%;	margin: 0 0.5%;	text-align: right;}
-.directory-index-row .row-date {	width: 35%;	margin: 0 0.5%;	text-align: right; }
+.directory-index-row .row-size {	/*width: 10%;	margin: 0 0.5%;*/	text-align: right;}
+.directory-index-row .row-date {	/*width: 35%;	margin: 0 0.5%;*/	text-align: right; }

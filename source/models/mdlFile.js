@@ -14,24 +14,64 @@ enyo.kind({
 		lastModified: function () { 
 			return new Date(this.get("mtime"));
 		},
+		prettySize: function() {
+			return this.formatSize(this.get("size"));
+		},
 		prettyLastModified: function () {
 			var d = this.get("lastModified");
+			return this.formatDate(d);
 			// var d = this.get("mtime");
 			// d = d.replace(/T/, " ");
 			// d = d.replace(/\..*$/, "");
 			// var objDate = enyo.dateToIlib(d);
-			var objDate = new ilib.Date.GregDate({unixtime: d.getTime()});
-			var objDateFmt = new ilib.DateFmt({date: 'dmw', length: 'long'});
+			// var objDate = new ilib.Date.GregDate({unixtime: d.getTime()});
+			// var objDateFmt = new ilib.DateFmt({date: 'dmw', length: 'long'});
 			// console.log("objDateFmt.format(objDate)",objDateFmt.format(objDate));
-			return objDateFmt.format(objDate);
+			// return objDateFmt.format(objDate);
 		},
 	},
 	computed: {
 		lastModified: [{cached: true}],
+		prettySize: [{cached: true}, "size"],
 		prettyLastModified: [{cached: true}, "lastModified"]
 	},
 	primaryKey: 'name',
-	parse: function (data) {
+	formatSize: function(size) {
+		var arrSizes = ['bytes','KB','MB','GB','TB'];
+		for (var i = arrSizes.length - 1; i >= 0; i--) {
+			var key = 1 << (i*10);
+				newSize = size >> (10 * i);
+			console.log("Size:", size, i, (10*i), newSize);
+			if (newSize > 0) {
+				return newSize + " " + arrSizes[i];
+			}
+		};
+		return "0 " + arrSizes[0];
+	sub size : method {
+		my $self = shift;
+		my @Sizes = @_;
+		my @Chart = qw(bytes KB MB GB TB);
+		foreach my $s (@Sizes) {
+			my $result = '0 bytes';
+			my $count = 0;
+			foreach my $c (@Chart) {
+				my $key = 2 ** ($count*10);
+				$s = int($s+1) if ($s != int($s));
+				last if ($s < $key);
+				$result = sprintf('%.2f', $s/$key);
+				$result = ($result+1-1) . ' ' . $c;
+				$count++;
+			}
+			$s = $result;
+		}
+		return scalar(@Sizes) > 1 ? @Sizes : $Sizes[0];
+	}
+	},
+	formatDate: function(date) {
+		var arrMonths = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+		return arrMonths[date.getMonth()] + " " + date.getDate() + " " + (1900 + date.getYear()) + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+	},
+	// parse: function (data) {
 		// convert the array of games data hashes into a collection
 		// of game records
 		
@@ -52,8 +92,9 @@ enyo.kind({
 			// delete data.away;
 		// }
 		// var objNewFile = enyo.createComponent({name: "fileManual", kind: "B.File"}, data);
+		// data.file = new enyo.Collection(data, {model: mdlFile, didFetch: true}); // owner: this <- causes .getId error
 		// var objNewFile = new enyo.Component({name: "fileManual", kind: "B.File"}); // owner: this <- causes .getId error
-		console.log('parse.data:', data);
+		// console.log('parse.data:', data);
 		// return data;
 		// if (data && !(data.games instanceof enyo.Collection)) {
 			// because this collection is getting its data from us here it doesn't know if
@@ -70,6 +111,6 @@ enyo.kind({
 		// data.file = new B.File(data);
 	// 	console.log("mdlFile:Data", data);
 
-		return data;
-	}
+	// 	return data;
+	// }
 });
