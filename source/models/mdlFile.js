@@ -47,25 +47,25 @@ enyo.kind({
 			}
 		};
 		return "0 " + arrSizes[0];
-	sub size : method {
-		my $self = shift;
-		my @Sizes = @_;
-		my @Chart = qw(bytes KB MB GB TB);
-		foreach my $s (@Sizes) {
-			my $result = '0 bytes';
-			my $count = 0;
-			foreach my $c (@Chart) {
-				my $key = 2 ** ($count*10);
-				$s = int($s+1) if ($s != int($s));
-				last if ($s < $key);
-				$result = sprintf('%.2f', $s/$key);
-				$result = ($result+1-1) . ' ' . $c;
-				$count++;
-			}
-			$s = $result;
-		}
-		return scalar(@Sizes) > 1 ? @Sizes : $Sizes[0];
-	}
+	// sub size : method {
+	// 	my $self = shift;
+	// 	my @Sizes = @_;
+	// 	my @Chart = qw(bytes KB MB GB TB);
+	// 	foreach my $s (@Sizes) {
+	// 		my $result = '0 bytes';
+	// 		my $count = 0;
+	// 		foreach my $c (@Chart) {
+	// 			my $key = 2 ** ($count*10);
+	// 			$s = int($s+1) if ($s != int($s));
+	// 			last if ($s < $key);
+	// 			$result = sprintf('%.2f', $s/$key);
+	// 			$result = ($result+1-1) . ' ' . $c;
+	// 			$count++;
+	// 		}
+	// 		$s = $result;
+	// 	}
+	// 	return scalar(@Sizes) > 1 ? @Sizes : $Sizes[0];
+	// }
 	},
 	formatDate: function(date) {
 		var arrMonths = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
