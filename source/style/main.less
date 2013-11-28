@@ -4,36 +4,32 @@
 +    minimize the use of custom CSS.
 +*/
 
-.main-view {
-}
-
-html, body {
-	background-color: black;
-}
+// html, body {
+// 	background-color: black;
+// }
 .moon-icon.small {
 	background-position: center center;
 	background-size: cover;
 }
 
+.icon-refresh:after { content: "\27F3"; }
 
-.directory-index-row .moon-marquee {
-	vertical-align: text-top;
+.directory-index-row {
+	.moon-marquee {
+		vertical-align: text-top;
+	}
+	.row-title,
+	.row-size,
+	.row-date {
+		padding-left: 1ex;
+		padding-right: 1ex;
+	}
+	.row-title {
+		font-family: "MuseoSans Medium";
+	}
+	.row-size,
+	.row-date-mod {
+		text-align: right;
+		font-family: "MuseoSans Light";
+	}
 }
-/*.directory-index-row div {
-	position: relative;
-	top: 0;
-}
-*/
-.directory-index-row>div>div {
-	padding: 0 1ex;
-}
-.directory-index-row div div+div {
-	display: inline-block;
-	font-family: "MuseoSans Light";
-}
-.directory-index-row .row-title {
-	font-family: "MuseoSans Medium";
-	// width: 45%;
-}
-.directory-index-row .row-size {	/*width: 10%;	margin: 0 0.5%;*/	text-align: right;}
-.directory-index-row .row-date {	/*width: 35%;	margin: 0 0.5%;*/	text-align: right; }

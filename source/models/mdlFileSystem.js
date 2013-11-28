@@ -9,7 +9,6 @@ enyo.kind({
 	// url: "http://dev:8888/?f=json&callback=my_func",
 	url: "http://dev:8888/%.?f=json",
 	path: "",
-	// url: "assets/OfflineScoreboard.html",
 	getUrl: function () {
 		// Inject the path into the right place in the URL we are going to fetch.
 		return enyo.format(this.url, this.path);
@@ -18,7 +17,6 @@ enyo.kind({
 	parse: function (data) {
 		// the data comes back as an object with a property that is the
 		// array of days with games that week
-		// data.contents = new enyo.Collection(data, {model: mdlDirectory, owner: this, didFetch: true});
 		// console.log("mdlFileSystem:Data.filesystem", data.filesystem);
 
 		return data.filesystem;

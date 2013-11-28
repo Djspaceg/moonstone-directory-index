@@ -17,6 +17,7 @@ enyo.kind({
 			baseTitle: "Blake's Dev Server"
 		}
 	},
+	directories: {},
 	// create: function() {
 		// this.inherited(arguments);
 		// this.parseUrl();

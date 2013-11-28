@@ -3,23 +3,20 @@ enyo.kind({
 	classes: "moon enyo-fit enyo-unselectable",
 	components: [
 		{name: "panels", kind: "moon.Panels", classes: "enyo-fit", pattern: "activity", style: "z-index: 1000;",
-				components: [
-					{name: "directory", title: "Directory Panel", classes: "moon-7h", smallHeader: true, titleBelow:"Sub-title", //subTitleBelow:"Sub-sub title", 
-					// controller: ".app.$.messageController",
-					// bindings: [
-					// 	{from: ".controller.message", to: ".title"}
-					// ],
-					// headerComponents: [
-					// 	{kind: "enyo.Group", name: "directoryTree", classes:"moon-header-left"}
-					// ],
+			components: [
+				{name: "directory", title: "Directory Panel", classes: "moon-7h", smallHeader: true, titleBelow:"Sub-title", //subTitleBelow:"Sub-sub title", 
+					headerComponents: [
+						{name: "toolbar", components: [
+							{kind: "moon.IconButton", icon: "drawer", classes: "icon-refresh", ontap: "update"}
+						]}
+					],
 					components: [
-						// {name: "dummyfile", kind: "B.File", ontap: "next",title: "some file", size: 123, mtime: "1982-08-13: 13:37:00"},
 						{name: "directoryList", kind: moon.DataList,
 							components: [
 								{kind: "B.File", ontap: "next",
 									bindings: [
 										{from: ".model.href", to: ".$.href"},
-										// {from: ".model.icon", to: ".icon"},
+										{from: ".model.icon", to: ".$.icon.src"},
 										{from: ".model.name", to: ".$.title.content"},
 										{from: ".model.prettySize", to: ".$.size.content"},
 										{from: ".model.prettyLastModified", to: ".$.lastModified.content"},
@@ -27,17 +24,12 @@ enyo.kind({
 									]
 								}
 							],
-							// bindings: [
-							// 	{from: ".collection.path", to: ".owner.$.directory.title"},
-							// 	{from: ".collection.name", to: ".owner.$.directory.titleBelow"}
-							// ]
 						}
 					],
 					bindings: [
 						{from: ".model.name", to: ".title"},
 						{from: ".model.path", to: ".titleBelow"},
 						{from: ".model.contents", to: ".owner.$.directoryList.collection"}
-						// {from: ".$.directoryList.collection.path", to: ".$.title"}
 					]
 				},
 				{title: "Second Panel", defaultSpotlightControl: "defaultControl", classes: "moon-7h", components: [
@@ -55,9 +47,9 @@ enyo.kind({
 					{kind: "moon.Item", content: "Item Five", ontap: "next"}
 				]},
 			],
-			bindings: [
-				{from: ".model.path", to: ".$.directory.titleBelow"}
-			],
+			// bindings: [
+			// 	{from: ".model.path", to: ".$.directory.titleBelow"}
+			// ],
 		}
 	],
 	next: function(inSender, inEvent) {
@@ -86,7 +78,14 @@ enyo.kind({
 		console.log("We have rendered:",this);
 	},
 	update: function () {
-		var c = this.createComponent({name: this.app.loc.path, path: this.app.loc.path, kind: mdlFileSystem});
+		// var weekId = this.get('weekId');
+		var c = this.app.directories[this.app.loc.path];
+		if (c) {
+			this.$.directory.set("model", c.at(0) );
+			return;
+		}
+		c = this.createComponent({name: this.app.loc.path, path: this.app.loc.path, kind: mdlFileSystem});
+		this.app.directories[this.app.loc.path] = c;
 		// c.fetch({strategy: "merge"});
 		
 		// this.$.directory.set("model", c.at(0) );
