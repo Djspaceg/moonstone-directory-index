@@ -65,7 +65,7 @@ enyo.kind({
 		return function () {
 			sup.apply(this, arguments);
 			console.log("Application.start",this);
-			this.$.mainView.update();
+			// this.$.mainView.update();
 		};
 	})
 });
