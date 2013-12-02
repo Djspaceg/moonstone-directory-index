@@ -4,7 +4,7 @@ enyo.kind({
 	components: [
 		{name: "panels", kind: "moon.Panels", classes: "enyo-fit", pattern: "activity", style: "z-index: 1000;",
 			components: [
-				{name: "rootDirectory", kind: "B.DirectoryIndex", path: "/node/test/", classes: "moon-7h"},
+				{name: "rootDirectory", kind: "B.DirectoryIndex", path: "/node/", classes: "moon-7h"},
 				{title: "Second Panel", defaultSpotlightControl: "defaultControl", classes: "moon-7h", components: [
 					{kind: "moon.Item", content: "Item One", ontap: "next"},
 					{kind: "moon.Item", content: "Item Two", ontap: "next"},
