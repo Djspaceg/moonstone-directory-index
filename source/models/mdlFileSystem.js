@@ -7,11 +7,11 @@ enyo.kind({
 	// we will use with _enyo.format_ to replace that with the current week
 	// url: "http://data.ncaa.com/jsonp/scoreboard/football/fbs/2013/%./scoreboard.html",
 	// url: "http://dev:8888/?f=json&callback=my_func",
-	url: "http://dev:8888/%.?f=json",
+	url: "http://%.:8888/%.?f=json",
 	path: "",
 	getUrl: function () {
 		// Inject the path into the right place in the URL we are going to fetch.
-		return enyo.format(this.url, this.path);
+		return enyo.format(this.url, window.location.hostname, this.path);
 	},
 	// primaryKey: 'name',
 	parse: function (data) {

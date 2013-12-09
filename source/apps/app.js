@@ -45,7 +45,7 @@ enyo.kind({
 		for(var i = 0; i < arrPath.length; i++) {
 			arrPath[i] = arrPath[i].toWordCase();
 		}
-		console.log("arrPath",arrPath);
+		// console.log("arrPath",arrPath);
 		return arrPath.reverse().join( strJoinWith || " - ")
 	},
 	goToHref: function(strHref) {
@@ -58,14 +58,14 @@ enyo.kind({
 			/// Open a new window using the name of the file as the identifier.
 			window.open(strHref, strFileName);
 		}
-	},
+	}
 	// we overloaded the default `start` method to also call our `update` method
 	// once the view is rendered
-	start: enyo.inherit(function (sup) {
-		return function () {
-			sup.apply(this, arguments);
-			console.log("Application.start",this);
-			// this.$.mainView.update();
-		};
-	})
+	// start: enyo.inherit(function (sup) {
+	// 	return function () {
+	// 		sup.apply(this, arguments);
+	// 		// console.log("Application.start",this);
+	// 		// this.$.mainView.update();
+	// 	};
+	// })
 });

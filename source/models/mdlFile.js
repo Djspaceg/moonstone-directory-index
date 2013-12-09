@@ -6,10 +6,10 @@ enyo.kind({
 	// model it will only do the local routines
 	readOnly: true,
 	attributes: {
-		title: "",
-		size: "",
-		ext: "",
-		href: "",
+		// title: "",
+		// size: "",
+		// ext: "",
+		// path: "",
 		icon: function () { 
 			return this.getIconSrc(this.get("ext"));
 		},
@@ -30,12 +30,12 @@ enyo.kind({
 		prettySize: [{cached: true}, "size"],
 		prettyLastModified: [{cached: true}, "lastModified"]
 	},
-	primaryKey: 'name',
+	primaryKey: 'path',
 	icons: {
 		// GENERAL ICONS (BLANK, DIRECTORY, PARENT DIRECTORY)
 		"folder":	"/moonstone-directory-index/assets/icons/128/folder-128.png",
 		"parent":	"/moonstone-directory-index/assets/icons/128/fill-folder-128.png",
-		"generic":	"/moonstone-directory-index/assets/icons/128/blank-file-4-128.png",
+		"generic":	"/moonstone-directory-index/assets/icons/128/blank-file-128.png",
 
 		// EXTENSION SPECIFIC ICONS
 		"txt":		"/moonstone-directory-index/assets/icons/128/text-file-128.png",
