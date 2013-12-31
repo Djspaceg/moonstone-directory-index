@@ -40,7 +40,7 @@ enyo.kind({
 	],
 	create: function() {
 		this.inherited(arguments);
-		this.$.breadcrumbBackground.handlers.ontap = "breadcrumbActivate";
+		// this.$.breadcrumbBackground.handlers.ontap = "breadcrumbActivate";
 		// console.log("B.DirectoryIndex.create:", this.$);
 		// for (var i = 0; i < this.$.directoryList.controls.length; i++) {
 		// 	console.log("Control #%d ontap: %s -> %s",i,this.$.directoryList.controls[i].handlers.ontap,this.get("ontaprow"));
@@ -48,7 +48,7 @@ enyo.kind({
 		// }
 	// 	this.loadTable( document.getElementsByTagName("table")[0] );
 	// 	this.buildTable();
-		this.update();
+		// this.update();
 	},
 	breadcrumbActivate: function() {
 		// remove myself from the collection.
@@ -62,14 +62,18 @@ enyo.kind({
 	// 	this.inherited(arguments);
 	// },
 	update: function () {
+		console.log("1 Updating Panel Path: %s", this.path);
 		// var weekId = this.get('weekId');
-		var c = this.app.directories[this.path];
-		if (c) {
-			this.set("model", c.at(0) );
+		//var c = this.app.directories[this.path];
+		var m = enyo.store.findLocal({ path: this.path })[0];
+		console.log("2 Updating Panel Path: %s", m);
+		if (m) {
+			this.set("model", m );
+			// this.set("model", c.at(0) );
 			return;
 		}
-		console.log("Panel Path: %s", this.path);
-		c = this.createComponent({name: this.app.loc.path, path: this.path, kind: mdlFileSystem});
+		console.log("Updating Panel Path: %s", this.path);
+		var c = this.createComponent({name: this.app.loc.path, path: this.path, kind: mdlFileSystem});
 		this.app.directories[this.app.loc.path] = c;
 		// c.fetch({strategy: "merge"});
 		
