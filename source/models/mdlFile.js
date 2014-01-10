@@ -10,7 +10,11 @@ enyo.kind({
 		// size: "",
 		// ext: "",
 		// path: "",
-		icon: function () { 
+		icon: function () {
+			var media = this.get("hasMedia");
+			if (media) {
+				return this.get("path") + media;
+			}
 			return this.getIconSrc(this.get("ext"));
 		},
 		lastModified: function () { 

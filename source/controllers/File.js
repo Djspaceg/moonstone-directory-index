@@ -19,32 +19,14 @@ enyo.kind({
 	// layoutKind: "FittableColumnsLayout",
 	components: [
 		{kind: "FittableColumns", components: [
-			{kind: "moon.Icon", name: "icon", classes: "row-icon"},
+			{kind: "moon.Icon", name: "icon", classes: "row-icon", small: false},
 			{name: "title", classes: "row-title", fit: true,  mixins: ["moon.MarqueeSupport", "moon.MarqueeItem"]},
 			{name: "size", classes: "row-size text", mixins: ["moon.MarqueeItem"]},
 			{name: "lastModified", classes: "row-date-mod text", mixins: ["moon.MarqueeSupport", "moon.MarqueeItem"]}
 		]},
 	],
-	// bindings: [
-	// 	{from: ".model.href", to: ".href"},
-		// {from: ".model.icon", to: ".$.icon.src"},
-		// {from: ".model.name", to: ".$.title.content"},
-	// 	{from: ".model.size", to: ".$.size.content"},
-	// 	{from: ".model.date", to: ".$.date.content"},
-	// ],
-    // create: function() {
-    //     this.inherited(arguments);
-        // this.hrefChanged();
-        // this.iconChanged();
-        // this.titleChanged();
-        // this.sizeChanged();
-        // this.lastModifiedChanged();
-    // },
-	// hrefChanged: function() {
-		// this.$.icon.set("src", this.icon);
-	// },
 	iconChanged: function() {
-		this.$.icon.set("src", this.icon);
+		this.$.icon.set("src", "'" + this.icon + "'");
 	},
 	titleChanged: function() {
 		// console.log("Manually setting title, from changeEvent.");
