@@ -57,7 +57,7 @@ enyo.kind({
 		this.movieNameChanged();
 	},
 	movieNameChanged: function() {
-		console.log("New movie name is:", this.get("movieName"), "at path:", this.get("path"));
+		// console.log("New movie name is:", this.get("movieName"), "at path:", this.get("path"));
 		if (this.get("title") == null) {
 			this.set("title", this.movieName);
 		}
@@ -82,7 +82,7 @@ enyo.kind({
 		this.set("yearFormatted", ( year ) ? "(" + year + ")" : "");
 	},
 	modelMovieInfoChanged: function() {
-		console.log("modelMovieInfo CHANGED!");
+		// console.log("modelMovieInfo CHANGED!");
 		var mi = this.get("modelMovieInfo"),
 			year = mi ? mi.get("yearUH") : "";
 		// console.log("yearChanged",this.get("year"));

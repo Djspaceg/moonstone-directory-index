@@ -13,10 +13,16 @@
 .spotlight .moon-icon {
 	opacity: 1;
 }
-.moon-icon {
+.moon-icon,
+.moon-icon.small {
 	background-position: center center;
 	background-size: contain;
-	height: 45px !important;
+}
+.enyo-fittable-columns-layout .moon-icon, {
+	height: 45px;
+	&.small {
+		height: 32px;
+	}
 }
 
 .moon-icon.small.icon-refresh {

@@ -35,7 +35,7 @@ enyo.kind({
 			if (title.match(/:/)) {
 				title = title.replace(/^(.*)\s*:.*$/, "$1");
 			}
-			console.log("set suptitle from: %s; to %s;", this.get("title"), title);
+			// console.log("set suptitle from: %s; to %s;", this.get("title"), title);
 			return title;
 		},
 		subtitle: function() {
@@ -44,7 +44,7 @@ enyo.kind({
 			if (title.match(/:/)) {
 				title = title.replace(/^.*:\s*(.*)$/, "$1");
 			}
-			console.log("set subtitle from: %s; to %s;", this.get("title"), title);
+			// console.log("set subtitle from: %s; to %s;", this.get("title"), title);
 			return title;
 		}
 	},
@@ -52,6 +52,7 @@ enyo.kind({
 		suptitle: [{cached: true}, "title"],
 		subtitle: [{cached: true}, "title"]
 	},
+	primaryKey: 'path',
 	// primaryKey: 'title',
 	// getIconSrc: function(ext) {
 	// 	return this.icons[ext] || this.icons["generic"];
@@ -75,9 +76,12 @@ enyo.kind({
 		// console.log("Host:Port", window.location.hostname + ":" + window.location.port, window.location.hostname, window.location.port, window.location)
 		return enyo.format(this.url, window.location.hostname + ":8888", this.path);
 	},
-	// primaryKey: 'name',
+	// primaryKey: 'path',
 	parse: function (data) {
-		console.log("mdlMovieInfo:Data.movie", data.movie);
+		// console.log("mdlMovieInfo:Data.movie", this.get("path"), data.movie);
+		if (data.movie) {
+			data.movie.path = this.get("path");
+		}
 		return data.movie;
 	},
 });

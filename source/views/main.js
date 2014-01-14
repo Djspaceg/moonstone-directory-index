@@ -56,9 +56,9 @@ enyo.kind({
 		this.createDirectoryPanel();
 		// console.log("Panel Create:", this, arrBread);
 	},
-	onLocalTap: function(inSender, inEvent) {
-		console.log("Catching Panels OnTap");
-	},
+	// onLocalTap: function(inSender, inEvent) {
+	// 	console.log("Catching Panels OnTap");
+	// },
 	next: function(inSender, inEvent) {
 		this.$.panels.next();
 		return true;
@@ -66,45 +66,76 @@ enyo.kind({
 	back: function() {
 		this.$.panels.popPanel();
 	},
-	getDirectory: function(inPath, onSuccess) {
-		if (!inPath || !onSuccess) {
+	storeFetch: function(inOptions) {
+		if (!inOptions.path ||
+			!inOptions.storeModel ||
+			!inOptions.componentModel ||
+			!inOptions.success
+			) {
 			return false;
 		}
-		var m = enyo.store.findLocal("mdlDirectory", { path: inPath });
+		if (!inOptions.fail) {
+			inOptions.fail = function() {};
+		}
+		// console.log("storeFetch:inOptions.path:", inOptions.path);
+		var m = enyo.store.findLocal(inOptions.storeModel, { path: inOptions.path });
 		if (m) {
 			// console.log("Found existing model in the store:", m);
-			onSuccess.call(this, m);
+			inOptions.success.call(this, m);
 			return true;
 		}
-		m = this.createComponent({name: inPath, path: inPath, kind: mdlFileSystem});
-		// console.log("Model doesn't exist yet. Creating for %s...", inPath);
-		m.fetch({success: enyo.bind(this, function(inObj,inBindOptions,inData) {
-			// console.log("Model fetched successfully. Args:", inObj,inBindOptions,inData);
-			onSuccess.call(this, m.at(0));
-		}), strategy: "merge"});
+		if (this.$[inOptions.path]) {
+			m = this.$[inOptions.path];
+		}
+		else {
+			m = this.createComponent({name: inOptions.path, path: inOptions.path, kind: inOptions.componentModel});
+		}
+		// console.log("Model doesn't exist yet. Creating for %s...", inOptions.path);
+		m.fetch({
+			success: enyo.bind(this, function(inObj,inBindOptions,inData) {
+				// console.log("Model fetched successfully. Args:", inObj,inBindOptions,inData);
+				inOptions.success.call(this, m.at(0));
+			}),
+			fail: enyo.bind(this, function(inObj,inBindOptions,inData) {
+				// console.log("Model fetch FAILED. Args:", inObj,inBindOptions,inData);
+				inOptions.fail.call(this, m.at(0));
+				// mi.destroy();
+			}),
+			strategy: "merge"
+		});
+		return true;
 	},
 	createDirectoryPanel: function(inOptions) {
 		if (!inOptions) {
 			inOptions = { path: "/" };
 		}
-		this.getDirectory(inOptions.path, function(inModel) {
-			var p,
-				bitMediaFolder = inModel.get("hasMedia");
-			if (bitMediaFolder) {
-				var strMovieName = bitMediaFolder || "";
-				strMovieName = strMovieName.replace(/\..*?$/, "");
-				// console.log("Creating a media panel", inOptions, strMovieName);
-				p = this.$.panels.pushPanel( {kind: "B.MovieInfo", path: inOptions.path, movieName: strMovieName} );
-				var mi = this.createComponent({name: inOptions.path, path: inOptions.path + "/" + strMovieName + ".nfo", kind: mdlMovieInfo});
-				mi.fetch({success: enyo.bind(this, function(inObj,inBindOptions,inData) {
-					// console.log("-- Successfully loaded MovieInfo! --", mi.at(0) );
-					p.set("modelMovieInfo", mi.at(0) );
-				}), strategy: "merge"});
+		this.storeFetch({
+			path: inOptions.path,
+			storeModel: "mdlDirectory",
+			componentModel: "mdlFileSystem",
+			success: function(inModel) {
+				var p,
+					bitMediaFolder = inModel.get("hasMedia");
+					// console.log("mdlDirectory: inModel",inModel);
+				if (bitMediaFolder) {
+					var strMovieName = bitMediaFolder || "";
+					strMovieName = strMovieName.replace(/\..*?$/, "");
+
+					p = this.$.panels.pushPanel( {kind: "B.MovieInfo", path: inOptions.path, movieName: strMovieName} );
+					this.storeFetch({
+						path: inOptions.path + strMovieName + ".nfo",
+						storeModel: "mdlMovie",
+						componentModel: "mdlMovieInfo",
+						success: function(inModel) {
+							p.set("modelMovieInfo", inModel );
+						}
+					});
+				}
+				else {
+					p = this.$.panels.pushPanel( {kind: "B.DirectoryIndex", path: inOptions.path} );
+				}
+				p.set("model", inModel );
 			}
-			else {
-				p = this.$.panels.pushPanel( {kind: "B.DirectoryIndex", path: inOptions.path} );
-			}
-			p.set("model", inModel );
 		});
 	},
 	openDirectory: function(inSender, inEvent, inFile) {

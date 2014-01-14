@@ -10,6 +10,8 @@ enyo.kind({
 		icon: "",
 		title: "",
 		size: "",
+		hasIndex: false,
+		hasMedia: false,
 		lastModified: new Date()
 	},
 	handlers: {
@@ -19,10 +21,10 @@ enyo.kind({
 	// layoutKind: "FittableColumnsLayout",
 	components: [
 		{kind: "FittableColumns", components: [
-			{kind: "moon.Icon", name: "icon", classes: "row-icon", small: false},
-			{name: "title", classes: "row-title", fit: true,  mixins: ["moon.MarqueeSupport", "moon.MarqueeItem"]},
-			{name: "size", classes: "row-size text", mixins: ["moon.MarqueeItem"]},
-			{name: "lastModified", classes: "row-date-mod text", mixins: ["moon.MarqueeSupport", "moon.MarqueeItem"]}
+			{kind: "moon.Icon", name: "icon", classes: "row-icon moon-1h", small: true},
+			{kind: "moon.MarqueeText", name: "title", classes: "row-title", fit: true},
+			{kind: "moon.MarqueeText", name: "size", classes: "row-size text moon-2h"},
+			{kind: "moon.MarqueeText", name: "lastModified", classes: "row-date-mod text moon-3h"}
 		]},
 	],
 	iconChanged: function() {
@@ -39,21 +41,12 @@ enyo.kind({
 		this.$.lastModified.setContent(this.lastModified);
 	},
 	goToHref: function(inSender, inEvent) {
-		// this.app.goToHref(this.href);
-		// window.alert("Go to: " + this.href);
-		if (!this.get("isDir")) {
+		if (!this.get("isDir") || this.get("hasIndex")) {
 			window.open(this.get("path"), this.get("title"));
 			return true;
 		}
 		// console.log("goToHref",this, this.get("path"), this.get("title"), this.$.title.content, "test");
 		this.app.$.mainView.openDirectory(inSender, inEvent, this);
-		// this.app.$.mainView.openDirectory({path: this.get("path"), title: this.get("title"), inSender:inSender, inEvent:inEvent});
 		return true;
-	},
-	fetch: function() {
-		/// Yes, this is stupid, but how else can I call the parent FROM the parent?
-		// console.log("Running ignorant local fetch.", this.container);
-		console.dir(this.container);
-		// this.container.$.fetch();
 	}
 });
