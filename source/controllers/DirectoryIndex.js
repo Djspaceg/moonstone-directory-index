@@ -38,4 +38,9 @@ enyo.kind({
 		{from: ".model.path", to: ".titleBelow"},
 		{from: ".model.contents", to: ".$.directoryList.collection"}
 	]
+	// transitionFinished: function(inInfo) {
+	// 	this.inherited(arguments);
+	// 	console.log("transitionFinished", inInfo);
+	// 	// this.attachRecords();
+	// }
 });

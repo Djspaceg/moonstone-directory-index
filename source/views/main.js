@@ -10,7 +10,8 @@ enyo.kind({
 				// ontap: "onLocalTap",
 				// onPreTransitionComplete:	"transitionDone",
 				onPostTransitionComplete:	"transitionDone"
-
+				// onTransitionStart:	"transitionDone",
+				// onTransitionEnd:	"transitionDone"
 			},
 			// onLocalTap: function(inSender, inEvent) {
 			// 	this.onTap(inSender, inEvent);
@@ -22,6 +23,7 @@ enyo.kind({
 			// 	}
 			// },
 			transitionDone: function(sendEvents) {
+				// console.log("Running transitionDone");
 				// First, determine the direction, add vs subtract
 				var activePanelIndex = this.getPanelIndex( this.getActive() );
 				// Do what we were supposed to do
@@ -139,7 +141,7 @@ enyo.kind({
 		});
 	},
 	openDirectory: function(inSender, inEvent, inFile) {
-		// create a new panel and ititialize it
+		// create a new panel and initialize it
 		this.createDirectoryPanel({path: inFile.get("path")});
 		this.next(inSender, inEvent);
 		return true;

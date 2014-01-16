@@ -36,12 +36,6 @@ enyo.kind({
 		onPlay: ""
 	},
 	bindings: [
-	    // {from: ".modelMovieInfo.suptitle", to: ".model.suptitle"},
-	    // {from: ".modelMovieInfo.subtitle", to: ".model.subtitle"},
-	    // {from: ".modelMovieInfo.year", to: ".model.year"},
-	    // {from: ".modelMovieInfo.plot", to: ".model.plot"},
-	    // {from: ".modelMovieInfo.tagline", to: ".model.tagline"},
-
 	    {from: ".posterSrc", to: ".$.image.src"},
 	    {from: ".model.title", to: ".$.image.alt"},
 	    {from: ".modelMovieInfo.suptitle", to: ".$.header.title"},
