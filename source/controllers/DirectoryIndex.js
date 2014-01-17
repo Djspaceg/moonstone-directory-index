@@ -1,23 +1,25 @@
 /// DataList, B.DirectoryIndex ///
 enyo.kind({
 	name: "B.DirectoryIndex",
-	kind: "moon.Panel",
-	classes: "moon-7h",
+	kind: "moon.DataList",
+	// classes: "moon-7h",
 	smallHeader: true,
-	title:"Directory Index",
-	titleBelow:"Sub-title",
-	headerComponents: [
-		{name: "toolbar", components: [
-			{kind: "moon.IconButton", icon: "drawer", classes: "icon-refresh", ontap: "update"}
-		]}
-	],
+	// title:"Directory Index",
+	// titleBelow:"Sub-title",
+	// headerComponents: [
+	// 	{name: "toolbar", components: [
+	// 		{kind: "moon.IconButton", icon: "drawer", classes: "icon-refresh", ontap: "update"}
+	// 	]}
+	// ],
 	published: {
-		path: "",
-		ontaprow: "someEvent",
+		title: "Directory Index",
+		titleBelow: "Sub-title",
+		path: "/",
+		// ontaprow: "someEvent",
 	},
 	components: [
-		{name: "directoryList", kind: moon.DataList,
-			components: [
+		// {name: "directoryList", kind: moon.DataList,
+		// 	components: [
 				{kind: "B.File", //ontap: ".ontoprow",
 					bindings: [
 						{from: ".model.path", to: ".path"},
@@ -30,14 +32,14 @@ enyo.kind({
 						{from: ".model.prettyLastModified", to: ".lastModified"},
 					]
 				}
-			],
-		}
+		// 	],
+		// }
 	],
-	bindings: [
-		{from: ".model.title", to: ".title"},
-		{from: ".model.path", to: ".titleBelow"},
-		{from: ".model.contents", to: ".$.directoryList.collection"}
-	]
+	// bindings: [
+		// {from: ".model.title", to: ".title"},
+		// {from: ".model.path", to: ".titleBelow"},
+		// {from: ".model.contents", to: ".$.collection"}
+	// ]
 	// transitionFinished: function(inInfo) {
 	// 	this.inherited(arguments);
 	// 	console.log("transitionFinished", inInfo);
