@@ -1,13 +1,14 @@
 enyo.kind({
 	name: "B.MovieInfo",
-	classes: "moon enyo-unselectable enyo-fit movie-info",
-	kind: "moon.Panel",
-	smallHeader: true,
+	parentOptions: {
+		classes: "movie-info",
+	},
 	headerOptions: {
+		smallHeader: false,
 		classes: "movie-info-header",
 	},
 	components: [
-		{name: "image", kind: "moon.Image", src: "", alt: "", classes: "movie-info-poster moon-gridlist-imageitem", showBadgesOnSpotlight: true, spotlight: true, ontap: "doPlay", components: [
+		{name: "poster", kind: "moon.Image", src: "", alt: "", classes: "movie-info-poster moon-gridlist-imageitem", showBadgesOnSpotlight: true, spotlight: true, ontap: "doPlay", components: [
 			{kind: "moon.Icon", icon: "play", spotlight: false, small: false}
 		]},
 		{name: "year", classes: "movie-info-year", content: "yearHere"},
@@ -21,13 +22,20 @@ enyo.kind({
 		posterSuffix: ".tbn",
 		fanartSuffix: "-fanart.jpg",
 		title: null,
-		// subTitle: "",
-		// year: "",
+		year: "",
 		// plot: "",
 		//* URL src of a poster/thumbnail image
-		posterSrc: null,
+		posterSrc: function() {
+			return this.get("path") + this.get("movieName") + this.get("posterSuffix");
+		},
 		//* URL src of a background image
-		backgroundSrc: null,
+		fanartSrc: function() {
+			return this.get("path") + this.get("movieName") + this.get("fanartSuffix");
+		},
+		yearFormatted: function() {
+			var year = this.get("year");
+			return year ? "(" + year + ")" : "";
+		},
 		//* Set to true to align image to right of text
 		imageAlignRight: false
 	},
@@ -36,53 +44,23 @@ enyo.kind({
 		onPlay: ""
 	},
 	bindings: [
-	    {from: ".posterSrc", to: ".$.image.src"},
-	    {from: ".model.title", to: ".$.image.alt"},
-	    {from: ".modelMovieInfo.suptitle", to: ".$.header.title"},
-	    {from: ".modelMovieInfo.subtitle", to: ".$.header.titleBelow"},
-	    {from: ".modelMovieInfo.tagline", to: ".$.header.subTitleBelow"},
+	    {from: ".posterSrc", to: ".$.poster.src"},
+	    {from: ".model.title", to: ".$.poster.alt"},
+	    {from: ".modelMovieInfo.suptitle", to: ".title"},
+	    {from: ".modelMovieInfo.subtitle", to: ".subtitle"},
+	    {from: ".modelMovieInfo.tagline", to: ".tagline"},
+	    // {from: ".modelMovieInfo.suptitle", to: ".$.header.title"},
+	    // {from: ".modelMovieInfo.subtitle", to: ".$.header.titleBelow"},
+	    // {from: ".modelMovieInfo.tagline", to: ".$.header.subTitleBelow"},
+	    {from: ".modelMovieInfo.year", to: ".year"},
 	    {from: ".yearFormatted", to: ".$.year.content"},
 	    {from: ".modelMovieInfo.plot", to: ".$.plot.content"},
 	    {from: ".imageAlignRight", to: ".$.image.imageAlignRight"}
 	],
-	//* @protected
-	create: function() {
-		this.inherited(arguments);
-		this.movieNameChanged();
-	},
-	movieNameChanged: function() {
-		// console.log("New movie name is:", this.get("movieName"), "at path:", this.get("path"));
-		if (this.get("title") == null) {
-			this.set("title", this.movieName);
-		}
-		this.posterSuffixChanged();
-		this.fanartSuffixChanged();
-		this.yearChanged();
-		// console.log("posterSrc:", this.posterSrc, this.get("path"), this);
-	},
-	posterSuffixChanged: function() {
-		this.set("posterSrc", this.get("path") + this.get("movieName") + this.get("posterSuffix"));
-	},
-	fanartSuffixChanged: function() {
-		this.set("backgroundSrc", this.get("path") + this.get("movieName") + this.get("fanartSuffix"));
-	},
-	yearChanged: function() {
-		// console.log("year CHANGED!");
-		var year = "";
-		if (!year) {
-			year = this.get("title").replace(/^.*\((\d+)\)$/, "$1");
-		}
-		// console.log("yearFormatted",year);
-		this.set("yearFormatted", ( year ) ? "(" + year + ")" : "");
-	},
-	modelMovieInfoChanged: function() {
-		// console.log("modelMovieInfo CHANGED!");
-		var mi = this.get("modelMovieInfo"),
-			year = mi ? mi.get("yearUH") : "";
-		// console.log("yearChanged",this.get("year"));
-		this.set("yearFormatted", ( year ) ? "(" + year + ")" : this.get("yearFormatted"));
-	},
-	backgroundSrcChanged: function() {
-		this.applyStyle("background-image", (this.backgroundSrc) ? "url('" + this.backgroundSrc + "')": "linear-gradient(to bottom, rgba(130,140,149,1) 0%,rgba(40,52,59,1) 100%)");
+	computed: {
+		// Set a computed dependency, so when it changes, we recalculate the week.
+		posterSrc: [{cached: true}, ["path", "movieName", "posterSuffix"]],
+		fanartSrc: [{cached: true}, ["path", "movieName", "fanartSuffix"]],
+		yearFormatted: [{cached: true}, "year"]
 	}
 });

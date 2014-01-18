@@ -44,6 +44,9 @@ enyo.kind({
 			if (title.match(/:/)) {
 				title = title.replace(/^.*:\s*(.*)$/, "$1");
 			}
+			else {
+				return "";
+			}
 			// console.log("set subtitle from: %s; to %s;", this.get("title"), title);
 			return title;
 		}

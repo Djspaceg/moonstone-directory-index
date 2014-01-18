@@ -58,6 +58,16 @@ enyo.kind({
 			/// Open a new window using the name of the file as the identifier.
 			window.open(strHref, strFileName);
 		}
+	},
+	setMultiple: function(inTarget, inOptions) {
+		for (var prop in inOptions) {
+			switch (prop) {
+				case "classes":
+					inTarget.addRemoveClass( inOptions[prop], true); break;
+				default:
+					inTarget.set(prop, inOptions[prop]);
+			}
+		}
 	}
 	// we overloaded the default `start` method to also call our `update` method
 	// once the view is rendered
