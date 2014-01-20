@@ -19,18 +19,21 @@ enyo.kind({
 	published: {
 		path: "",
 		movieName: "",
-		posterSuffix: ".tbn",
+		posterName: "",
+		// posterSuffix: ".tbn",
 		fanartSuffix: "-fanart.jpg",
 		title: null,
 		year: "",
 		// plot: "",
 		//* URL src of a poster/thumbnail image
 		posterSrc: function() {
-			return this.get("path") + this.get("movieName") + this.get("posterSuffix");
+			// console.log("posterSrc:", this.get("model") , this.get("movieName") + this.get("posterSuffix"));
+			// return "http://" + this.app.get("fileServerHost") + this.get("path") + this.get("movieName") + this.get("posterSuffix");
+			return "http://" + this.app.get("fileServerHost") + this.get("path") + this.get("posterName");
 		},
 		//* URL src of a background image
 		fanartSrc: function() {
-			return this.get("path") + this.get("movieName") + this.get("fanartSuffix");
+			return "http://" + this.app.get("fileServerHost") + this.get("path") + this.get("movieName") + this.get("fanartSuffix");
 		},
 		yearFormatted: function() {
 			var year = this.get("year");
@@ -59,7 +62,7 @@ enyo.kind({
 	],
 	computed: {
 		// Set a computed dependency, so when it changes, we recalculate the week.
-		posterSrc: [{cached: true}, ["path", "movieName", "posterSuffix"]],
+		posterSrc: [{cached: true}, ["path", "posterName"]],
 		fanartSrc: [{cached: true}, ["path", "movieName", "fanartSuffix"]],
 		yearFormatted: [{cached: true}, "year"]
 	}

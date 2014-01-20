@@ -77,7 +77,8 @@ enyo.kind({
 	getUrl: function () {
 		// Inject the path into the right place in the URL we are going to fetch.
 		// console.log("Host:Port", window.location.hostname + ":" + window.location.port, window.location.hostname, window.location.port, window.location)
-		return enyo.format(this.url, window.location.hostname + ":8888", this.path);
+		// return enyo.format(this.url, window.location.hostname + ":8888", this.path);
+		return enyo.format(this.url, this.app.get("fileServerHost"), this.path);
 	},
 	// primaryKey: 'path',
 	parse: function (data) {

@@ -42,7 +42,7 @@ enyo.kind({
 	},
 	goToHref: function(inSender, inEvent) {
 		if (!this.get("isDir") || this.get("hasIndex")) {
-			window.open(this.get("path"), this.get("title"));
+			window.open("http://" + this.app.get("fileServerHost") + this.get("path"), this.get("title"));
 			return true;
 		}
 		// console.log("goToHref",this, this.get("path"), this.get("title"), this.$.title.content, "test");

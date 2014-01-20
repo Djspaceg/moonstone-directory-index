@@ -13,8 +13,9 @@ enyo.kind({
 		// path: "",
 		icon: function () {
 			var media = this.get("hasMedia");
+				// console.log("fileServerHost", this );
 			if (media) {
-				return this.get("path") + media;
+				return "http://" + this.get("fileServerHost") + this.get("path") + media;
 			}
 			return this.getIconSrc(this.get("ext"));
 		},
@@ -28,12 +29,19 @@ enyo.kind({
 			var d = this.get("lastModified");
 			return this.formatDate(d);
 		},
+		fileServerHostname: "zion.resourcefork.com",
+		fileServerPort: "4043",
+		fileServerHost: function() {
+			var port = this.get("fileServerPort") ? ":" + this.get("fileServerPort") : "";
+			return this.get("fileServerHostname") + port;
+		}
 	},
 	computed: {
 		icon: [{cached: true}, "ext"],
 		lastModified: [{cached: true}],
 		prettySize: [{cached: true}, "size"],
-		prettyLastModified: [{cached: true}, "lastModified"]
+		prettyLastModified: [{cached: true}, "lastModified"],
+		fileServerHost: [{cached: true}, ["fileServerHostname","fileServerPort"]]
 	},
 	primaryKey: 'path',
 	icons: {
@@ -98,18 +106,23 @@ enyo.kind({
 	kind: enyo.Model,
 	readOnly: true,
 	attributes: {
+		// app: function() {
+		// 	return this.get("appRef");
+		// },
 		path: "path",
 		name: function () { 
 			return this.get("name");
 		},
 		title: function () { 
 			var strDir = this.get("name");
+			// console.log("mdlDirectory", this.appRef, this.get("app"), this );
 			return strDir === "/" ? "/Home" : strDir.toWordCase();
 		},
 		// contents: []
 	},
 	computed: {
-		title: [{cached: true}],
+		title: [{cached: true}, "name"]
+		// app: [{cached: true}, "appRef"]
 	},
 	primaryKey: 'path',
 	parse: function (data) {
@@ -117,7 +130,7 @@ enyo.kind({
 		// array of days with games that week
 		data.contents = new enyo.Collection(data.contents, {model: mdlFile, didFetch: true}); // owner: this <- causes .getId error
 		// console.log("mdlDirectory:Data", data);
-
+		// data.appRef = this.get("app");
 		return data;
 	},
 });
@@ -132,17 +145,19 @@ enyo.kind({
 	// we will use with _enyo.format_ to replace that with the current week
 	// url: "http://data.ncaa.com/jsonp/scoreboard/football/fbs/2013/%./scoreboard.html",
 	// url: "http://dev:8888/?f=json&callback=my_func",
-	url: "http://%.:8888/%.?f=json",
+	url: "http://%./%.?f=json",
 	path: "",
 	getUrl: function () {
 		// Inject the path into the right place in the URL we are going to fetch.
-		return enyo.format(this.url, window.location.hostname, this.path);
+		// return enyo.format(this.url, window.location.hostname, ":8888", this.path);
+		return enyo.format(this.url, this.app.get("fileServerHost"), this.path);
 	},
 	// primaryKey: 'name',
 	parse: function (data) {
 		// the data comes back as an object with a property that is the
 		// array of days with games that week
 		// console.log("mdlFileSystem:Data.filesystem", data.filesystem);
+		data.filesystem[0].app = this.app;
 
 		return data.filesystem;
 	},

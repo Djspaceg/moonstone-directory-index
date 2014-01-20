@@ -105,10 +105,11 @@ enyo.kind({
 				var di,
 					bitMediaFolder = inModel.get("hasMedia");
 
+				console.log("bitMediaFolder:",bitMediaFolder);
 				if (bitMediaFolder) {
-					var strMovieName = bitMediaFolder || "";
-					strMovieName = strMovieName.replace(/\..*?$/, "");
-
+					var strMovieName = bitMediaFolder || "",
+						strThumbName = strMovieName;
+					strMovieName = strMovieName.replace(/(\-poster)?\..*?$/, "");
 					this.storeFetch({
 						path: inPanel.path + strMovieName + ".nfo",
 						storeModel: "mdlMovie",
@@ -120,6 +121,7 @@ enyo.kind({
 								kind: "B.MovieInfo",
 								path: inPanel.path,
 								movieName: strMovieName,
+								posterName: strThumbName
 							});
 							di.set("model", inModel );
 							di.set("modelMovieInfo", inMovieModel );
@@ -186,9 +188,13 @@ enyo.kind({
 				components: [
 					{kind: "moon.IconButton", classes: "moon-spinner", small: false}
 				],
+				// render: function() {
+				// 	this.inherited(arguments);
+				// 	this.backgroundSrcChanged();
+				// },
 				backgroundSrcChanged: function() {
 					// console.log("backgroundSrcChanged");
-					this.applyStyle("background-image", (this.backgroundSrc) ? "url('" + this.backgroundSrc + "')": "linear-gradient(to bottom, rgba(130,140,149,1) 0%,rgba(40,52,59,1) 100%)");
+					this.applyStyle("background-image", (this.get("backgroundSrc")) ? "url('" + this.get("backgroundSrc") + "')": "inherit");
 				}
 			});
 		// p.$.header.$.texts.addRemoveClass("moon-header-texts",true);

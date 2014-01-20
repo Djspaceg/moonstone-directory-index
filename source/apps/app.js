@@ -15,7 +15,16 @@ enyo.kind({
 		},
 		page: {
 			baseTitle: "Blake's Dev Server"
+		},
+		fileServerHostname: "zion.resourcefork.com",
+		fileServerPort: "4043",
+		fileServerHost: function() {
+			var port = this.get("fileServerPort") ? ":" + this.get("fileServerPort") : "";
+			return this.get("fileServerHostname") + port;
 		}
+	},
+	computed: {
+		fileServerHost: [{cached: true}, ["fileServerHostname","fileServerPort"]]
 	},
 	directories: {},
 	// create: function() {
