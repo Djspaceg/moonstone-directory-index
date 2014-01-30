@@ -68,6 +68,7 @@ enyo.kind({
 	],
 	computed: {
 		// Set a computed dependency, so when it changes, we recalculate the week.
+		videoSrc: [{cached: true}, ["path", "movieName"]],
 		posterSrc: [{cached: true}, ["path", "posterName"]],
 		fanartSrc: [{cached: true}, ["path", "movieName", "fanartSuffix"]],
 		yearFormatted: [{cached: true}, "year"]

@@ -74,11 +74,11 @@ enyo.kind({
 	formatSize: function(size) {
 		var arrSizes = ['bytes','KB','MB','GB','TB'];
 		if (size > 0) {
-		for (var i = 0; i < arrSizes.length; i++) {
-			if ((size >> (10 * i)) == 0) {
-				return (size >> (10 * (i-1))) + " " + arrSizes[i-1];
-			}
-		};
+			for (var i = 0; i < arrSizes.length; i++) {
+				if ((size >> (10 * i)) == 0) {
+					return (size >> (10 * (i-1))) + " " + arrSizes[i-1];
+				}
+			};
 		}
 		return "0 " + arrSizes[0];
 	},

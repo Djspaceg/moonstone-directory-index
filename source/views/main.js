@@ -4,8 +4,45 @@ enyo.kind({
 	attributes: {
 		panelList: {},
 	},
-	components: [
-		{name: "panels", kind: "moon.Panels", classes: "enyo-fit", pattern: "activity",
+	components: [		// http://media.w3.org/2010/05/bunny/movie.mp4
+		{name: "player", kind: "moon.VideoPlayer", src: "", poster: "", shakeAndWake: true, autoplay: true, infoComponents: [
+			{kind: "moon.VideoInfoBackground", orient: "left", background: true, fit: true, components: [
+				{
+					kind: "moon.ChannelInfo",
+					channelNo: "13",
+					channelName: "AMC",
+					classes: "moon-2h", 
+					components: [
+						{content: "3D"},
+						{content: "Live"},
+						{content: "REC 08:22", classes: "moon-video-player-info-redicon "}
+					]
+				},
+				{
+					name: "playerHeader",
+					kind: "moon.VideoInfoHeader",
+					title: "Downton Abbey - Extra Title",
+					subTitle: "Mon June 21, 7:00 - 8:00pm",
+					subSubTitle: "R - TV 14, V, L, SC",
+					description: "The series, set in the Youkshire country estate of Downton Abbey, depicts the lives of the aristocratic Crawley famiry and"
+				}
+			]},
+			{kind: "moon.VideoInfoBackground", orient: "right", background: true, components: [
+				{kind:"moon.Clock"}
+			]}
+		], components: [
+			// {kind: "moon.IconButton", src: "$lib/moonstone/images/video-player/icon-placeholder.png"},
+			// {kind: "moon.IconButton", src: "$lib/moonstone/images/video-player/icon-placeholder.png"},
+			// {kind: "moon.IconButton", src: "$lib/moonstone/images/video-player/icon-placeholder.png"},
+			// {kind: "moon.IconButton", src: "$lib/moonstone/images/video-player/icon-placeholder.png"},
+			// {kind: "moon.IconButton", src: "$lib/moonstone/images/video-player/icon-placeholder.png"},
+			// {kind: "moon.IconButton", src: "$lib/moonstone/images/video-player/icon-placeholder.png"},
+			// {kind: "moon.IconButton", src: "$lib/moonstone/images/video-player/icon-placeholder.png"},
+			// {kind: "moon.IconButton", src: "$lib/moonstone/images/video-player/icon-placeholder.png"},
+			// {kind: "moon.IconButton", src: "$lib/moonstone/images/video-player/icon-placeholder.png"},
+			// {kind: "moon.IconButton", src: "$lib/moonstone/images/video-player/icon-placeholder.png"}
+		]},
+		{name: "panels", kind: "moon.Panels", pattern: "activity", classes: "enyo-fit", useHandle: true,
 			handlers: {
 				// onTransitionStart:	"customTransitionStart",
 				onTransitionFinish:	"customTransitionFinish"
@@ -122,7 +159,22 @@ enyo.kind({
 								kind: "B.MovieInfo",
 								path: inPanel.path,
 								movieName: strMovieName,
-								posterName: strThumbName
+								posterName: strThumbName,
+								handlers: {
+									onPlay: "myPlayMech"
+								},
+								myPlayMech: function() {
+									console.log("myPlayMech", this);
+
+									self.$.player.set("poster",	this.get("posterSrc") );
+									self.$.player.set("src",	this.get("videoSrc") );
+									self.$.playerHeader.set("title",	this.get("title"));
+									self.$.playerHeader.set("subTitle",	this.get("subtitle"));
+									self.$.playerHeader.set("description",	this.get("plot"));
+
+									self.$.panels.set("showing", false);
+									self.$.player.play();
+								}
 							});
 							di.set("model", inModel );
 							di.set("modelMovieInfo", inMovieModel );
