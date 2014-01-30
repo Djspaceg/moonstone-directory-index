@@ -23,8 +23,13 @@ enyo.kind({
 		// posterSuffix: ".tbn",
 		fanartSuffix: "-fanart.jpg",
 		title: null,
+		plot: "",
 		year: "",
 		// plot: "",
+		//* URL src of a poster/thumbnail image
+		videoSrc: function() {
+			return "http://" + this.app.get("fileServerHost") + this.get("path") + this.get("movieName") + ".mp4";
+		},
 		//* URL src of a poster/thumbnail image
 		posterSrc: function() {
 			// console.log("posterSrc:", this.get("model") , this.get("movieName") + this.get("posterSuffix"));
@@ -57,7 +62,8 @@ enyo.kind({
 	    // {from: ".modelMovieInfo.tagline", to: ".$.header.subTitleBelow"},
 	    {from: ".modelMovieInfo.year", to: ".year"},
 	    {from: ".yearFormatted", to: ".$.year.content"},
-	    {from: ".modelMovieInfo.plot", to: ".$.plot.content"},
+	    {from: ".modelMovieInfo.plot", to: ".plot"},
+	    {from: ".plot", to: ".$.plot.content"},
 	    {from: ".imageAlignRight", to: ".$.image.imageAlignRight"}
 	],
 	computed: {

@@ -97,6 +97,7 @@ enyo.kind({
 	},
 	assignPanelContents: function(inPanel) {
 		// console.log("assignPanelContents", inPanel.id);
+		var self = this;
 		this.storeFetch({
 			path: inPanel.path,
 			storeModel: "mdlDirectory",

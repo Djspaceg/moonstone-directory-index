@@ -23,8 +23,8 @@ enyo.kind({
 		{kind: "FittableColumns", components: [
 			{kind: "moon.Icon", name: "icon", classes: "row-icon moon-1h", small: true},
 			{kind: "moon.MarqueeText", name: "title", classes: "row-title", fit: true},
-			{kind: "moon.MarqueeText", name: "size", classes: "row-size text moon-2h"},
-			{kind: "moon.MarqueeText", name: "lastModified", classes: "row-date-mod text moon-3h"}
+			{kind: "moon.MarqueeText", name: "size", classes: "row-size text moon-3h"},
+			{kind: "moon.MarqueeText", name: "lastModified", classes: "row-date-mod text moon-5h"}
 		]},
 	],
 	iconChanged: function() {

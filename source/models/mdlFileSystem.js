@@ -15,7 +15,7 @@ enyo.kind({
 			var media = this.get("hasMedia");
 				// console.log("fileServerHost", this );
 			if (media) {
-				return "http://" + this.get("fileServerHost") + this.get("path") + media;
+				return "http://" + enyo.$.directoryIndex_mainView.app.get("fileServerHost") + this.get("path") + media;
 			}
 			return this.getIconSrc(this.get("ext"));
 		},
@@ -28,12 +28,6 @@ enyo.kind({
 		prettyLastModified: function () {
 			var d = this.get("lastModified");
 			return this.formatDate(d);
-		},
-		fileServerHostname: "zion.resourcefork.com",
-		fileServerPort: "4043",
-		fileServerHost: function() {
-			var port = this.get("fileServerPort") ? ":" + this.get("fileServerPort") : "";
-			return this.get("fileServerHostname") + port;
 		}
 	},
 	computed: {
@@ -41,7 +35,6 @@ enyo.kind({
 		lastModified: [{cached: true}],
 		prettySize: [{cached: true}, "size"],
 		prettyLastModified: [{cached: true}, "lastModified"],
-		fileServerHost: [{cached: true}, ["fileServerHostname","fileServerPort"]]
 	},
 	primaryKey: 'path',
 	icons: {
@@ -80,16 +73,21 @@ enyo.kind({
 	},
 	formatSize: function(size) {
 		var arrSizes = ['bytes','KB','MB','GB','TB'];
+		if (size > 0) {
 		for (var i = 0; i < arrSizes.length; i++) {
 			if ((size >> (10 * i)) == 0) {
 				return (size >> (10 * (i-1))) + " " + arrSizes[i-1];
 			}
 		};
+		}
 		return "0 " + arrSizes[0];
+	},
+	zeroPad: function(inNum) {
+		return (inNum < 10 && inNum > -10) ? "0" + inNum : inNum;
 	},
 	formatDate: function(date) {
 		var arrMonths = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-		return arrMonths[date.getMonth()] + " " + date.getDate() + " " + (1900 + date.getYear()) + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+		return arrMonths[date.getMonth()] + " " + date.getDate() + " " + (1900 + date.getYear()) + " " + date.getHours() + ":" + this.zeroPad(date.getMinutes()) + ":" + this.zeroPad(date.getSeconds());
 	},
 	getIconSrc: function(ext) {
 		return this.icons[ext] || this.icons["generic"];
