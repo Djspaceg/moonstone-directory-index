@@ -18,6 +18,7 @@ enyo.kind({
 				{from: ".model.hasIndex", to: ".hasIndex"},
 				{from: ".model.hasMedia", to: ".hasMedia"},
 				{from: ".model.prettySize", to: ".size"},
+				{from: ".model.ext", to: ".ext"},
 				{from: ".model.prettyLastModified", to: ".lastModified"},
 			]
 		}

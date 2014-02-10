@@ -55,37 +55,24 @@ enyo.kind({
 		suptitle: [{cached: true}, "title"],
 		subtitle: [{cached: true}, "title"]
 	},
-	primaryKey: 'path',
-	// primaryKey: 'title',
-	// getIconSrc: function(ext) {
-	// 	return this.icons[ext] || this.icons["generic"];
-	// }
-	// parse: function (data) {
-	// 	console.log("mdlFile:Data", data);
-	// 	return data;
-	// }
+	primaryKey: "path"
 });
 
 enyo.kind({
 	name: "mdlMovieInfo",
 	kind: enyo.Collection,
-	model: mdlMovie,
+	model: "mdlMovie",
 	defaultSource: "jsonp",
-	// url: "http://dev:8888/?f=json&callback=my_func",
-	url: "http://%.%.?f=json",
+	url: "http://%./json%.",
 	path: "",
 	getUrl: function () {
 		// Inject the path into the right place in the URL we are going to fetch.
-		// console.log("Host:Port", window.location.hostname + ":" + window.location.port, window.location.hostname, window.location.port, window.location)
-		// return enyo.format(this.url, window.location.hostname + ":8888", this.path);
 		return enyo.format(this.url, this.app.get("fileServerHost"), this.path);
 	},
-	// primaryKey: 'path',
 	parse: function (data) {
-		// console.log("mdlMovieInfo:Data.movie", this.get("path"), data.movie);
 		if (data.movie) {
 			data.movie.path = this.get("path");
 		}
 		return data.movie;
-	},
+	}
 });

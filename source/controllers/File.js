@@ -10,12 +10,16 @@ enyo.kind({
 		icon: "",
 		title: "",
 		size: "",
+		ext: "",
 		hasIndex: false,
 		hasMedia: false,
 		lastModified: new Date()
 	},
+	events: {
+		onOpen: ""
+	},
 	handlers: {
-		ontap: "goToHref"
+		ontap: "open"
 		// ontap: "fetch"
 	},
 	// layoutKind: "FittableColumnsLayout",
@@ -25,7 +29,7 @@ enyo.kind({
 			{kind: "moon.MarqueeText", name: "title", classes: "row-title", fit: true},
 			{kind: "moon.MarqueeText", name: "size", classes: "row-size text moon-3h"},
 			{kind: "moon.MarqueeText", name: "lastModified", classes: "row-date-mod text moon-5h"}
-		]},
+		]}
 	],
 	iconChanged: function() {
 		this.$.icon.set("src", "'" + this.icon + "'");
@@ -40,13 +44,7 @@ enyo.kind({
 	lastModifiedChanged: function() {
 		this.$.lastModified.setContent(this.lastModified);
 	},
-	goToHref: function(inSender, inEvent) {
-		if (!this.get("isDir") || this.get("hasIndex")) {
-			window.open("http://" + this.app.get("fileServerHost") + this.get("path"), this.get("title"));
-			return true;
-		}
-		// console.log("goToHref",this, this.get("path"), this.get("title"), this.$.title.content, "test");
-		this.app.$.mainView.openDirectory(inSender, inEvent, this);
-		return true;
+	open: function(inSender, inEvent) {
+		this.doOpen({file: this});
 	}
 });

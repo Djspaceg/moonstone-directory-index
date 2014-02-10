@@ -7,24 +7,13 @@
 // html, body {
 // 	background-color: black;
 // }
-.moon-icon {
-	opacity: 0.61;
+
+.picture-viewer {
+	background: #4B5259 linear-gradient(to bottom right, #4B5259 0%, #0C0F11 100%);
 }
-.spotlight .moon-icon {
-	opacity: 1;
-}
-.moon-icon,
-.moon-icon.small {
-	background-position: center center;
-	background-size: contain;
-}
-.enyo-fittable-columns-layout .moon-icon, {
-	height: 45px;
-	margin-top: 0;
-	margin-bottom: 0;
-	&.small {
-		height: 32px;
-	}
+
+.media-info-player-poster img {
+	width: 150px;
 }
 
 .moon-icon.small.icon-refresh {
@@ -39,6 +28,25 @@
 .directory-index-row {
 	font-family: "MuseoSans 500", "MuseoSans Medium";
 
+	.moon-icon, {
+		height: 45px;
+		margin-top: 0;
+		margin-bottom: 0;
+		&.small {
+			height: 32px;
+		}
+	}
+	.moon-icon {
+		opacity: 0.61;
+	}
+	&.spotlight .moon-icon {
+		opacity: 1;
+	}
+	.moon-icon,
+	.moon-icon.small {
+		background-position: center center;
+		background-size: contain;
+	}
 	.moon-marquee {
 		vertical-align: text-top;
 	}

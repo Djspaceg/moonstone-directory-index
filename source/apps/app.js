@@ -2,9 +2,9 @@ enyo.kind({
 	name: "B.Application",
 	kind: "enyo.Application",
 	// components: [{
-	// 	name: "messageController",
-	// 	kind: "enyo.Controller",
-	// 	message: $L("Directory Index")
+		// name: "messageController",
+		// kind: "enyo.Controller",
+		// message: $L("Directory Index")
 	// }],
 	view: "B.MainView",
 	published: {
@@ -46,9 +46,13 @@ enyo.kind({
 		document.title = (strTitle ? (strTitle + " - ") : "") + this.page.baseTitle;
 	},
 	getPathArray: function(strPath) {
-		if (strPath === undefined) return [];
+		if (strPath === undefined) { 
+			return [];
+		}
 		strPath = strPath.replace(/^\/|\/$/g, "");
-		if (strPath === "") return [];
+		if (strPath === "") {
+			return [];
+		}
 		return strPath.split("/");
 	},
 	getPrettyPath: function(strPath, strJoinWith) {
@@ -57,7 +61,7 @@ enyo.kind({
 			arrPath[i] = arrPath[i].toWordCase();
 		}
 		// console.log("arrPath",arrPath);
-		return arrPath.reverse().join( strJoinWith || " - ")
+		return arrPath.reverse().join( strJoinWith || " - ");
 	},
 	goToHref: function(strHref) {
 		if (strHref.match(/\/$/)) {
@@ -74,7 +78,8 @@ enyo.kind({
 		for (var prop in inOptions) {
 			switch (prop) {
 				case "classes":
-					inTarget.addRemoveClass( inOptions[prop], true); break;
+					inTarget.addRemoveClass( inOptions[prop], true);
+					break;
 				default:
 					inTarget.set(prop, inOptions[prop]);
 			}
@@ -83,10 +88,10 @@ enyo.kind({
 	// we overloaded the default `start` method to also call our `update` method
 	// once the view is rendered
 	// start: enyo.inherit(function (sup) {
-	// 	return function () {
-	// 		sup.apply(this, arguments);
-	// 		// console.log("Application.start",this);
-	// 		// this.$.mainView.update();
-	// 	};
+		// return function () {
+			// sup.apply(this, arguments);
+			// console.log("Application.start",this);
+			// this.$.mainView.update();
+		// };
 	// })
 });
