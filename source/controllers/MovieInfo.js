@@ -19,26 +19,32 @@ enyo.kind({
 	published: {
 		path: "",
 		movieName: "",
-		posterName: "",
+		nfoName: "",
+		// posterName: "",
+		// fanartName: "",
+		// These two methods MUST be loaded in this way, because standard bindings fire too late.
+		// When the main.js fires, looking for the background art, the standard fanart is still blank,
+		// even though the binding is set to be dependent on the model. It's having trouble trickling up.
+		// Maybe I need an event here to fire it manually instead of this hack?
+		posterName: function() { return this.model.get("poster"); },
+		fanartName: function() { return this.model.get("fanart"); },
 		// posterSuffix: ".tbn",
-		fanartSuffix: "-fanart.jpg",
 		title: null,
 		plot: "",
 		year: "",
 		mpaaOriginal: "",
 		//* URL src of a poster/thumbnail image
 		videoSrc: function() {
-			return "http://" + this.app.get("fileServerHost") + this.get("path") + this.get("movieName") + ".mp4";
+			return "http://" + this.app.get("fileServerHost") + encodeURI( this.get("path") + this.get("movieName") + ".mp4");
 		},
 		//* URL src of a poster/thumbnail image
 		posterSrc: function() {
-			// console.log("posterSrc:", this.get("model") , this.get("movieName") + this.get("posterSuffix"));
 			// return "http://" + this.app.get("fileServerHost") + this.get("path") + this.get("movieName") + this.get("posterSuffix");
-			return "http://" + this.app.get("fileServerHost") + this.get("path") + this.get("posterName");
+			return "http://" + this.app.get("fileServerHost") + encodeURI( this.get("path") + this.get("posterName") );
 		},
 		//* URL src of a background image
 		fanartSrc: function() {
-			return "http://" + this.app.get("fileServerHost") + this.get("path") + this.get("movieName") + this.get("fanartSuffix");
+			return "http://" + this.app.get("fileServerHost") + encodeURI( this.get("path") + this.get("fanartName") );
 		},
 		yearFormatted: function() {
 			var year = this.get("year");
@@ -56,26 +62,29 @@ enyo.kind({
 		onPlay: ""
 	},
 	bindings: [
-		{from: ".posterSrc", to: ".$.poster.src"},
+		{from: ".model.basename", to: ".movieName"},
+		{from: ".model.poster", to: ".posterName"},
+		{from: ".model.fanart", to: ".fanartName"},
+		{from: ".model.nfo", to: ".nfoName"},
 		{from: ".model.title", to: ".$.poster.alt"},
 		{from: ".modelMovieInfo.suptitle", to: ".title"},
 		{from: ".modelMovieInfo.subtitle", to: ".subtitle"},
 		{from: ".modelMovieInfo.tagline", to: ".tagline"},
-		// {from: ".modelMovieInfo.suptitle", to: ".$.header.title"},
-		// {from: ".modelMovieInfo.subtitle", to: ".$.header.titleBelow"},
-		// {from: ".modelMovieInfo.tagline", to: ".$.header.subTitleBelow"},
 		{from: ".modelMovieInfo.year", to: ".year"},
 		{from: ".modelMovieInfo.mpaa", to: ".mpaaOriginal"},
-		{from: ".yearFormatted", to: ".$.year.content"},
 		{from: ".modelMovieInfo.plot", to: ".plot"},
+		{from: ".imageAlignRight", to: ".$.image.imageAlignRight"},
 		{from: ".plot", to: ".$.plot.content"},
-		{from: ".imageAlignRight", to: ".$.image.imageAlignRight"}
+		{from: ".posterSrc", to: ".$.poster.src"},
+		{from: ".yearFormatted", to: ".$.year.content"}
 	],
 	computed: {
 		// Set a computed dependency, so when it changes, we recalculate the week.
-		videoSrc: [{cached: true}, ["path", "movieName"]],
-		posterSrc: [{cached: true}, ["path", "posterName"]],
-		fanartSrc: [{cached: true}, ["path", "movieName", "fanartSuffix"]],
+		posterName: [{cached: true}, ["model"]],
+		fanartName: [{cached: true}, ["model"]],
+		videoSrc: [{cached: true}, ["model", "path", "movieName"]],
+		posterSrc: [{cached: true}, ["model", "path", "posterName"]],
+		fanartSrc: [{cached: true}, ["model", "path", "fanartName"]],
 		yearFormatted: [{cached: true}, "year"],
 		mpaa: [{cached: true}, "mpaaOriginal"]
 	},

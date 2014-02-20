@@ -1,31 +1,33 @@
 enyo.kind({
 	name: "B.Application",
 	kind: "enyo.Application",
-	// components: [{
-		// name: "messageController",
-		// kind: "enyo.Controller",
-		// message: $L("Directory Index")
-	// }],
 	view: "B.MainView",
 	published: {
-		loc: {
-			dir: "",
-			path: "",
-			pathArray: []
+		locDir: "",
+		locPath: "",
+		locPathArray: function() {
+			// var arr = this.getPathArray( this.get("locPath") );
+			// console.log("locPathArray:", arr, this.get("locPath"));
+			// return arr;
+			return this.getPathArray( this.get("locPath") );
 		},
-		page: {
-			baseTitle: "Blake's Dev Server"
-		},
-		fileServerHostname: "localhost",
-		fileServerPort: "8888",
+		titleBase: "Moonstone Directory Index",
+		titleDelimiter: " - ",
+		fileServerHostname: "",
+		fileServerPort: "",
 		fileServerHost: function() {
 			var port = this.get("fileServerPort") ? ":" + this.get("fileServerPort") : "";
 			return this.get("fileServerHostname") + port;
 		}
 	},
 	computed: {
+		locPathArray: [{cached: true}, ["locPath"]],
 		fileServerHost: [{cached: true}, ["fileServerHostname","fileServerPort"]]
 	},
+	// Load in our settings
+	mixins: [
+		"enyo.Settings.Main"
+	],
 	directories: {},
 	// create: function() {
 		// this.inherited(arguments);
@@ -36,41 +38,41 @@ enyo.kind({
 	// rendered: function () {
 		// this.inherited(arguments);
 	// },
+	getHashPath: function() {
+		var strPath = window.location.hash.substr(1);
+		if (strPath.indexOf("/") !== 0) {
+			return "/" + strPath;
+		}
+		return strPath || "/";
+	},
 	parseUrl: function() {
-		this.loc.path = window.location.pathname;
-		this.loc.dir = this.loc.path.replace(/^.*\/(.+?)\/?$/, "$1");
+		this.set("locPath", this.getHashPath() );
+		this.set("locDir", this.get("locPath").replace(/^.*\/(.+?)\/?$/, "$1") );
 	},
 	setPageTitle: function(strTitle) {
-		document.title = (strTitle ? (strTitle + " - ") : "") + this.page.baseTitle;
+		document.title = (strTitle ? (strTitle + this.get("titleDelimiter")) : "") + this.get("titleBase");
+	},
+	locPathChanged: function() {
+		this.setPageTitle( this.getPrettyPath( this.get("locPath") ) );
 	},
 	getPathArray: function(strPath) {
 		if (strPath === undefined) { 
-			return [];
+			return [""];
 		}
-		strPath = strPath.replace(/^\/|\/$/g, "");
+		strPath = strPath.replace(/\/$/g, "");
 		if (strPath === "") {
-			return [];
+			return [""];
 		}
 		return strPath.split("/");
 	},
 	getPrettyPath: function(strPath, strJoinWith) {
 		var arrPath = this.getPathArray(strPath);
 		for(var i = 0; i < arrPath.length; i++) {
-			arrPath[i] = arrPath[i].toWordCase();
+			if (arrPath[i]) {
+				arrPath[i] = arrPath[i].toWordCase();
+			}
 		}
-		// console.log("arrPath",arrPath);
-		return arrPath.reverse().join( strJoinWith || " - ");
-	},
-	goToHref: function(strHref) {
-		if (strHref.match(/\/$/)) {
-			/// Got a directory
-			window.location.href = strHref;
-		}
-		else {
-			var strFileName = strHref.replace(/^.*\//);
-			/// Open a new window using the name of the file as the identifier.
-			window.open(strHref, strFileName);
-		}
+		return arrPath.reverse().join( strJoinWith || this.get("titleDelimiter") || "");
 	},
 	setMultiple: function(inTarget, inOptions) {
 		for (var prop in inOptions) {

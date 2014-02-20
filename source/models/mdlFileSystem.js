@@ -95,6 +95,11 @@ enyo.kind({
 	kind: enyo.Model,
 	readOnly: true,
 	attributes: {
+		basename: "",
+		nfo: "",
+		poster: "",
+		fanart: "",
+		videos: [],
 		path: "path",
 		name: function () { 
 			return this.get("name");
@@ -111,51 +116,46 @@ enyo.kind({
 	parse: function (data) {
 		data.contents = new enyo.Collection(data.contents, {model: "mdlFile", didFetch: true}); // owner: this <- causes .getId error
 		if (data.hasMedia) {
-			data.nfo = "";
-			data.poster = "";
-			data.fanart = "";
-			data.videos = [];
-
-			data.contents.map( function(file, index) {
-				var name = file.get("name");
-				if (name.match(/\.nfo$/i)) {
-					data.nfo = name;
-				}
-				if (name.match(/\.(tbn|-poster\.jpg)$/i)) {
-					data.poster = name;
-				}
-				if (name.match(/-fanart\.jpg$/i)) {
-					data.fanart = name;
-				}
-				if (name.match(/\.(mp4|m4v|avi|mov)$/i)) {
-					data.videos.push( name );
-				}
-			});
+			var objMedia = this.mediaFolderRecon(data);
+			enyo.mixin(data, objMedia);
 		}
 		return data;
 	},
+	/**
+	 * for files that match the filetypes patterns, set the keyed (filetype-key) property.
+	 * Also set the basename, using any of the file patterns bases.
+	 */
 	mediaFolderRecon: function(inModel) {
-		var outData = {
-			nfo: "",
-			poster: "",
-			fanart: "",
-			videos: []
-		};
-		inModel.get("contents").map( function(file, index) {
-			var name = file.get("name");
-			if (name.match(/\.nfo$/i)) {
-				outData.nfo = name;
-			}
-			if (name.match(/\.(tbn|-poster\.jpg)$/i)) {
-				outData.poster = name;
-			}
-			if (name.match(/-fanart\.jpg$/i)) {
-				outData.fanart = name;
-			}
-			if (name.match(/\.(mp4|m4v|avi|mov)$/i)) {
-				outData.videos.push( name );
-			}
-		});
+		var filetypes = {
+				nfo: /\.nfo$/i,
+				poster: /(\.tbn|-poster\.(jpg|png))$/i,
+				fanart: /-fanart\.(jpg|png)$/i,
+				videos: /\.(mp4|m4v|avi|mov)$/i
+			},
+			outData = {
+				basename: "",
+				nfo: "",
+				poster: "",
+				fanart: "",
+				videos: []
+			};
+
+		if (inModel.contents && inModel.contents.map) {
+			inModel.contents.map( function(file, index) {
+				var name = file.get("name");
+				for (var filepattern in filetypes) {
+					if (name.match(filetypes[filepattern])) {
+						if (enyo.isArray(outData[filepattern])) {
+							outData[filepattern].push( name );
+						}
+						else {
+							outData[filepattern] = name;
+						}
+						outData.basename = name.replace(filetypes[filepattern], "");
+					}
+				}
+			});
+		}
 		return outData;
 	}
 });

@@ -1,9 +1,6 @@
 enyo.kind({
 	name: "B.MainView",
 	classes: "moon enyo-fit enyo-unselectable",
-	attributes: {
-		panelList: {}
-	},
 	// http://media.w3.org/2010/05/bunny/movie.mp4
 	components: [
 		{
@@ -55,7 +52,8 @@ enyo.kind({
 		title: "Loading...",
 		path: null,
 		published: {
-			backgroundSrc: null
+			backgroundSrc: null,
+			directoryLoaded: false
 		},
 		// headerComponents: [
 			// {name: "toolbar", components: [
@@ -63,7 +61,7 @@ enyo.kind({
 			// ]}
 		// ],
 		components: [
-			{name: "loadingSpinner", kind: "moon.IconButton", classes: "moon-spinner", small: false}
+			// {name: "loadingSpinner", kind: "moon.IconButton", classes: "moon-spinner", small: false}
 		],
 		bindings: [
 			{from: ".$.movieInfo.title", to: ".title"},
@@ -71,14 +69,31 @@ enyo.kind({
 			{from: ".$.movieInfo.tagline", to: ".subTitleBelow"},
 			{from: ".$.movieInfo.fanartSrc", to: ".backgroundSrc"}
 		],
+		events: {
+			onPanelContentAreaReady: "",
+			onDirectoryLoaded: ""
+		},
+		handlers: {
+			onDirectoryLoaded: "directoryLoadFinished"
+		},
 		backgroundSrcChanged: function() {
 			var bgSrc = this.get("backgroundSrc");
 			// console.log("this.$:", this.$);
 			// this.$.loadingSpinner.set("showing", bgSrc ? true : false);
 			this.applyStyle("background-image", (bgSrc) ? "url('" + bgSrc + "')": "inherit");
+		},
+		directoryLoadFinished: function(inSender, inEvent) {
+			// console.log("Directory Loaded Event Fired:", inEvent);
+			this.set("directoryLoaded", true);
 		}
 	},
+	events: {
+		onOpenDirectory: ""
+	},
 	handlers: {
+		onOpenDirectory: "openDirectory",
+		onPanelContentAreaReady: "handlePanelContentAreaReady",
+		// onTransitionStart:	"customTransitionStart",
 		onTransitionFinish:	"customTransitionFinish",
 		onPlay:	"playMovie",
 		onOpen: "openFile"
@@ -95,31 +110,45 @@ enyo.kind({
 		this.inherited(arguments);
 
 		this.app.parseUrl();
-		this.app.loc.pathArray = this.app.getPathArray( this.app.loc.path );
 
-		this.app.setPageTitle( this.app.getPrettyPath( this.app.loc.path ) );
 
 		// var arrBread = this.getBreadCrumbs();
 		// this.$.directoryTree.createComponents( arrBread );
 		// this.$.panels.createComponent( {name: "rootDirectory", kind: "B.DirectoryIndex", path: "/", classes: "moon-7h", ontaprow: "next"} );
-		var p = this.createDirectoryPanel();
-		this.assignPanelContents(p);
+
+	},
+	rendered: function () {
+		this.inherited(arguments);
+
+		// Take our path array and generate some panels using it
+		var ps = this.createDirectoryPanels(this.app.get("locPathArray"));
+		this.$.panels.pushPanels(ps);
+		
+		// Manually fire the assign function, since we won't have a transition to rely on with only one panel.
+		if (ps.length <= 1) {
+			this.assignPanelContents(this.$.panels.getActive());
+		}
 		// console.log("Panel Create:", this, arrBread);
 	},
+	eventVars: function(inSender, inEvent) {
+		console.log(inEvent.type, "-> inSender:", inSender, "inEvent:",inEvent);
+	},
+	customTransitionStart: function(inSender, inEvent) {
+		console.log("customTransitionStart", inSender, inEvent, inSender.getIndex(), inSender.getPanels() );
+	},
 	customTransitionFinish: function(inSender, inEvent) {
-		// console.log("customTransitionFinish", inEvent);
+		var panels = inEvent.originator;
 		if (inEvent.toIndex < inEvent.fromIndex) {
 			// console.log("We removed a panel and went back to index: %s; from: %s;", inEvent.toIndex, inEvent.fromIndex);
-			this.$.panels.popPanels(inEvent.toIndex + 1);
+			panels.popPanels(inEvent.toIndex + 1);
 		}
 		else if (inEvent.toIndex > inEvent.fromIndex) {
 			// console.log("We loaded a new panel at index: %s;", inEvent.toIndex, inEvent);
-			var p = this.$.panels.getActive();
-			this.assignPanelContents(p);
 		}
 		else {
 			// console.log("We reloaded the same panel at index: %s;", inEvent.toIndex);
 		}
+		panels.getActive().doPanelContentAreaReady();
 	},
 	next: function(inSender, inEvent) {
 		this.$.panels.next();
@@ -157,7 +186,8 @@ enyo.kind({
 		var file = inEvent.file;
 		// console.log("file:", file);
 		if (file.get("isDir") && !file.get("hasIndex")) {
-			this.openDirectory(inSender, inEvent, file);
+			// this.openDirectory(inSender, inEvent);
+			this.doOpenDirectory({file: file});
 			return true;
 		}
 		switch (file.get("ext")) {
@@ -190,16 +220,10 @@ enyo.kind({
 		// console.log("storeFetch:inOptions.path:", inOptions.path, inOptions);
 		var m = enyo.store.findLocal(inOptions.storeModel, { path: inOptions.path });
 		if (m) {
-			// console.log("Found existing model in the store:", m);
 			inOptions.success.call(this, m);
 			return true;
 		}
-		if (this.$[inOptions.path]) {
-			m = this.$[inOptions.path];
-		}
-		else {
-			m = this.createComponent({name: inOptions.path, path: inOptions.path, kind: inOptions.componentModel});
-		}
+		m = this.createComponent({name: inOptions.path, path: inOptions.path, kind: inOptions.componentModel});
 		// console.log("Model doesn't exist yet. Creating for %s...", inOptions.path);
 		m.fetch({
 			success: enyo.bind(this, function(inObj,inBindOptions,inData) {
@@ -215,7 +239,11 @@ enyo.kind({
 		});
 		return true;
 	},
+	handlePanelContentAreaReady: function(inSender, inEvent) {
+		this.assignPanelContents(inEvent.originator);
+	},
 	assignPanelContents: function(inPanel) {
+		if (inPanel.get("directoryLoaded")) { return true; }
 		this.storeFetch({
 			path: inPanel.path,
 			storeModel: "mdlDirectory",
@@ -225,26 +253,20 @@ enyo.kind({
 					bitMediaFolder = inModel.get("hasMedia");
 
 				if (bitMediaFolder) {
-					var strMovieName = bitMediaFolder || "",
-						strThumbName = strMovieName;
-					strMovieName = strMovieName.replace(/(\-poster)?\..*?$/, "");
-
 					this.storeFetch({
-						path: inPanel.path + strMovieName + ".nfo",
+						path: inPanel.path + (inModel.get("nfo") || "fail.noNfoFileExists"),
 						storeModel: "mdlMovie",
 						componentModel: "mdlMovieInfo",
 						success: function(inMovieModel) {
-							// console.log("Fetch of %s Successful.", strMovieName, inMovieModel);
+							// console.log("Fetch of %s Successful.", inPanel.path, inModel, "inMovieModel", inMovieModel);
 							inPanel.destroyClientControls();
 							di = inPanel.createComponent({
 								name: "movieInfo",
 								kind: "B.MovieInfo",
 								path: inPanel.path,
-								movieName: strMovieName,
-								posterName: strThumbName
+								model: inModel,
+								modelMovieInfo: inMovieModel
 							});
-							di.set("model", inModel );
-							di.set("modelMovieInfo", inMovieModel );
 
 							this.app.setMultiple(inPanel, di.get("parentOptions"));
 							this.app.setMultiple(inPanel.$.header, di.get("headerOptions"));
@@ -252,10 +274,12 @@ enyo.kind({
 							di.render();
 						},
 						fail: function(inObj,inBindOptions,inData) {
-							// console.log("Fetch of %s FAILED.", strMovieName, arguments);
-							var m = this.createComponent({kind: "mdlMovie"}),
+							var strMovieName = inModel.get("basename"),
 								title = strMovieName.replace(/\s*\(\d+\)\s*$/, ""),
-								year = strMovieName.match(/\((\d+)\)\s*$/) ? strMovieName.replace(/^.*\((\d+)\)\s*$/, "$1") : "";
+								year = strMovieName.match(/\((\d+)\)\s*$/) ? strMovieName.replace(/^.*\((\d+)\)\s*$/, "$1") : "",
+								m = this.createComponent({kind: "mdlMovie"});
+
+							// console.log("Fetch of %s FAILED.", strMovieName, arguments);
 
 							m.set("title", title);
 							m.set("year", year);
@@ -278,20 +302,41 @@ enyo.kind({
 					di.set("model", inModel );
 					di.render();
 				}
+				inPanel.doDirectoryLoaded();
 			}
 		});
+		return true;
 	},
 	createDirectoryPanel: function(inOptions) {
 		if (!inOptions) {
 			inOptions = { path: "/" };
 		}
-		var p = this.$.panels.pushPanel(this.panelTemplate);
-		p.set("path", inOptions.path);
+		var p = enyo.clone(this.panelTemplate);
+		if (inOptions.initialTitle) {
+			p.title = inOptions.initialTitle;
+		}
+		p.path = inOptions.path;
 		return p;
 	},
-	openDirectory: function(inSender, inEvent, inFile) {
+	createDirectoryPanels: function(inPathArray) {
+		if (!inPathArray || !enyo.isArray(inPathArray)) {
+			inPathArray = [""];
+		}
+		// Take our path array and generate some panels using it
+		var ps = [],
+			path = "";
+		// Paths are fully wrapped in slashes: /dir1/dir2/
+		for (var i = 0; i < inPathArray.length; i++) {
+			var dirName = inPathArray[i];
+			path+= dirName + "/";
+			ps.push(this.createDirectoryPanel({path: path, initialTitle: dirName || "/Home"}));
+		}
+		return ps;
+	},
+	openDirectory: function(inSender, inEvent) {
 		// create a new panel and initialize it
-		this.createDirectoryPanel({path: inFile.get("path")});
+		var p = this.createDirectoryPanel({path: inEvent.file.get("path")});
+		this.$.panels.pushPanel(p);
 		return true;
 	},
 	getBreadCrumbs: function(arrPath) {

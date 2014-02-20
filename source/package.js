@@ -1,3 +1,4 @@
+enyo.Settings = {};
 enyo.depends(
 	// Cordova (PhoneGap) library
 	// "$lib/enyo-cordova",
@@ -13,6 +14,8 @@ enyo.depends(
 	"$lib/spotlight",
 	// CSS/LESS style files
 	"style",
+	// Configuration files and definitions
+	"../conf",
 	// Model and data definitions
 	"models",
 	// Controller kinds for the application(s)
