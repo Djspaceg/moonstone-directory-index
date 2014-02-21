@@ -3,8 +3,6 @@ enyo.kind({
 	name: "mdlFile",
 	kind: enyo.Model,
 	// mergeKeys: ["day"],
-	// this is a read-only example, and this flag means if _destroy_ is called on this
-	// model it will only do the local routines
 	readOnly: true,
 	attributes: {
 		icon: function () {

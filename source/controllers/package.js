@@ -1,5 +1,6 @@
 enyo.depends(
 	"controllers.js",
+	"Router.js",
 	"File.js",
 	"DataPanels.js",
 	"MediaInfo.js",

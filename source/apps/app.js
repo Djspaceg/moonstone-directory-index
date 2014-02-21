@@ -2,6 +2,9 @@ enyo.kind({
 	name: "B.Application",
 	kind: "enyo.Application",
 	view: "B.MainView",
+	components: [
+		{name: "router", kind: "B.Router"}
+	],
 	published: {
 		locDir: "",
 		locPath: "",
@@ -24,36 +27,24 @@ enyo.kind({
 		locPathArray: [{cached: true}, ["locPath"]],
 		fileServerHost: [{cached: true}, ["fileServerHostname","fileServerPort"]]
 	},
+	handlers: [
+		{onPathChange: "handlePathChange"}
+	],
 	// Load in our settings
 	mixins: [
 		"enyo.Settings.Main"
 	],
-	directories: {},
-	// create: function() {
-		// this.inherited(arguments);
-		// this.parseUrl();
-		// this.loc.pathArray = this.getPathArray( this.loc.path );
-		// console.log("Application Create:", this.loc, this.get("loc"));
-	// },
-	// rendered: function () {
-		// this.inherited(arguments);
-	// },
-	getHashPath: function() {
-		var strPath = window.location.hash.substr(1);
-		if (strPath.indexOf("/") !== 0) {
-			return "/" + strPath;
-		}
-		return strPath || "/";
-	},
-	parseUrl: function() {
-		this.set("locPath", this.getHashPath() );
-		this.set("locDir", this.get("locPath").replace(/^.*\/(.+?)\/?$/, "$1") );
+	handlePathChange: function(inSender, inEvent) {
+		this.set("locPath", inEvent.path );
 	},
 	setPageTitle: function(strTitle) {
 		document.title = (strTitle ? (strTitle + this.get("titleDelimiter")) : "") + this.get("titleBase");
 	},
 	locPathChanged: function() {
-		this.setPageTitle( this.getPrettyPath( this.get("locPath") ) );
+		var locpath = this.get("locPath");
+		this.set("locDir", locpath.replace(/^.*\/(.+?)\/?$/, "$1") );
+		this.setPageTitle( this.getPrettyPath( locpath ) );
+		this.$.router.trigger({location: "#" + locpath, change: true});
 	},
 	getPathArray: function(strPath) {
 		if (strPath === undefined) { 
@@ -66,13 +57,14 @@ enyo.kind({
 		return strPath.split("/");
 	},
 	getPrettyPath: function(strPath, strJoinWith) {
-		var arrPath = this.getPathArray(strPath);
+		var arrPath = this.getPathArray(strPath),
+			arrOutPath = [];
 		for(var i = 0; i < arrPath.length; i++) {
 			if (arrPath[i]) {
-				arrPath[i] = arrPath[i].toWordCase();
+				arrOutPath.push(arrPath[i].toWordCase());
 			}
 		}
-		return arrPath.reverse().join( strJoinWith || this.get("titleDelimiter") || "");
+		return arrOutPath.reverse().join( strJoinWith || this.get("titleDelimiter") || "");
 	},
 	setMultiple: function(inTarget, inOptions) {
 		for (var prop in inOptions) {
@@ -85,13 +77,4 @@ enyo.kind({
 			}
 		}
 	}
-	// we overloaded the default `start` method to also call our `update` method
-	// once the view is rendered
-	// start: enyo.inherit(function (sup) {
-		// return function () {
-			// sup.apply(this, arguments);
-			// console.log("Application.start",this);
-			// this.$.mainView.update();
-		// };
-	// })
 });

@@ -1,32 +1,29 @@
 // (function (enyo) {
-// 	//*@public
-// 	/**
-// 		A generic source for use with an Ajax-ready backend. It uses the "GET"
-// 		method for _fetch()_, "POST" or "PUT" for _commit()_ (depending on whether
-// 		the record is _new_ (created locally), and "DELETE" for _destroy()_.
-// 	*/
-// 	enyo.kind({
-// 		name: "B.XmlSource",
-// 		kind: enyo.AjaxSource,
-// 		//* Uses the _enyo.Ajax_ kind for requests
-// 		requestKind: enyo.Ajax,
-// 		handleAs: "xml",
-// 		//* Uses "GET" method.
-// 		fetch: function (rec, opts) {
-// 			opts.method = "GET";
-// 			opts.url = this.buildUrl(rec, opts);
-// 			this.go(opts);
-// 		}
-// 	});
-// 	enyo.store.addSources({xml: "B.XmlSource"});
+	//*@public
+	/**
+		A generic source for use with an Ajax-ready backend. It uses the "GET"
+		method for _fetch()_, "POST" or "PUT" for _commit()_ (depending on whether
+		the record is _new_ (created locally), and "DELETE" for _destroy()_.
+	*/
+	// enyo.kind({
+		// name: "B.XmlSource",
+		// kind: enyo.AjaxSource,
+		// //* Uses the _enyo.Ajax_ kind for requests
+		// requestKind: enyo.Ajax,
+		// handleAs: "xml",
+		// //* Uses "GET" method.
+		// fetch: function (rec, opts) {
+			// opts.method = "GET";
+			// opts.url = this.buildUrl(rec, opts);
+			// this.go(opts);
+		// }
+	// });
+	// enyo.store.addSources({xml: "B.XmlSource"});
 // })(enyo);
 
 enyo.kind({
 	name: "mdlMovie",
 	kind: enyo.Model,
-	// mergeKeys: ["day"],
-	// this is a read-only example, and this flag means if _destroy_ is called on this
-	// model it will only do the local routines
 	readOnly: true,
 	attributes: {
 		suptitle: function() {

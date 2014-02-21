@@ -1,7 +1,6 @@
 enyo.kind({
 	name: "B.MainView",
 	classes: "moon enyo-fit enyo-unselectable",
-	// http://media.w3.org/2010/05/bunny/movie.mp4
 	components: [
 		{
 			name: "player",
@@ -91,12 +90,12 @@ enyo.kind({
 		onOpenDirectory: ""
 	},
 	handlers: {
-		onOpenDirectory: "openDirectory",
+		onOpenDirectory: "handleOpenDirectory",
 		onPanelContentAreaReady: "handlePanelContentAreaReady",
-		// onTransitionStart:	"customTransitionStart",
-		onTransitionFinish:	"customTransitionFinish",
-		onPlay:	"playMovie",
-		onOpen: "openFile"
+		// onTransitionStart: "handleTransitionStart",
+		onTransitionFinish:	"handleTransitionFinish",
+		onPlay:	"handlePlay",
+		onOpen: "handleOpen"
 	},
 	bindings: [
 		{from: ".movieInfo.videoSrc",	to: ".$.player.src"},
@@ -106,26 +105,28 @@ enyo.kind({
 		{from: ".movieInfo.subtitle",	to: ".$.playerHeader.subTitle"},
 		{from: ".movieInfo.plot",		to: ".$.playerHeader.description"}
 	],
-	create: function() {
-		this.inherited(arguments);
-
-		this.app.parseUrl();
-
-
-		// var arrBread = this.getBreadCrumbs();
-		// this.$.directoryTree.createComponents( arrBread );
-		// this.$.panels.createComponent( {name: "rootDirectory", kind: "B.DirectoryIndex", path: "/", classes: "moon-7h", ontaprow: "next"} );
-
-	},
 	rendered: function () {
 		this.inherited(arguments);
+		this.generatePanelsFromPath();
+	},
 
+	/**
+	 *
+	 * Try and make it so when you hit the back browser button, 
+	 * or put in a different #, it just goes directly to that set of panes.
+	 * 
+	 */
+
+
+	generatePanelsFromPath: function() {
+		// this.inherited(arguments);
+		
 		// Take our path array and generate some panels using it
 		var ps = this.createDirectoryPanels(this.app.get("locPathArray"));
 		this.$.panels.pushPanels(ps);
 		
 		// Manually fire the assign function, since we won't have a transition to rely on with only one panel.
-		if (ps.length <= 1) {
+		if (this.$.panels.getPanels().length <= 1) {
 			this.assignPanelContents(this.$.panels.getActive());
 		}
 		// console.log("Panel Create:", this, arrBread);
@@ -133,11 +134,22 @@ enyo.kind({
 	eventVars: function(inSender, inEvent) {
 		console.log(inEvent.type, "-> inSender:", inSender, "inEvent:",inEvent);
 	},
-	customTransitionStart: function(inSender, inEvent) {
+	handlePanelContentAreaReady: function(inSender, inEvent) {
+		this.assignPanelContents(inEvent.originator);
+	},
+	handleOpenDirectory: function(inSender, inEvent) {
+		// create a new panel and initialize it
+		var p = this.createDirectoryPanel({path: inEvent.file.get("path")});
+		this.$.panels.pushPanel(p);
+		return true;
+	},
+	handleTransitionStart: function(inSender, inEvent) {
 		console.log("customTransitionStart", inSender, inEvent, inSender.getIndex(), inSender.getPanels() );
 	},
-	customTransitionFinish: function(inSender, inEvent) {
-		var panels = inEvent.originator;
+	handleTransitionFinish: function(inSender, inEvent) {
+		var panels = inEvent.originator,
+			p = panels.getActive();
+
 		if (inEvent.toIndex < inEvent.fromIndex) {
 			// console.log("We removed a panel and went back to index: %s; from: %s;", inEvent.toIndex, inEvent.fromIndex);
 			panels.popPanels(inEvent.toIndex + 1);
@@ -148,25 +160,11 @@ enyo.kind({
 		else {
 			// console.log("We reloaded the same panel at index: %s;", inEvent.toIndex);
 		}
+		this.app.set("locPath", p.path);
+
 		panels.getActive().doPanelContentAreaReady();
 	},
-	next: function(inSender, inEvent) {
-		this.$.panels.next();
-		return true;
-	},
-	back: function() {
-		this.$.panels.popPanel();
-	},
-	showPicture: function() {
-		// this.$.pictureFrame.set("showing", true);
-		this.$.pictureViewer.set("showing", true);
-		this.$.panels.set("showing", false);
-	},
-	showVideo: function() {
-		this.$.pictureViewer.set("showing", false);
-		this.$.panels.set("showing", false);
-	},
-	playMovie: function(inSender, inEvent) {
+	handlePlay: function(inSender, inEvent) {
 		var objMovieInfo = inEvent.originator;
 		if (objMovieInfo.kind === "B.MovieInfo") {
 			// console.log("playMovie:this:", this, "movieInfo:", objMovieInfo, objMovieInfo.get("videoSrc"));
@@ -181,7 +179,7 @@ enyo.kind({
 			this.$.player.play();
 		}
 	},
-	openFile: function(inSender, inEvent) {
+	handleOpen: function(inSender, inEvent) {
 		// this.doOpen({file: this})
 		var file = inEvent.file;
 		// console.log("file:", file);
@@ -205,6 +203,48 @@ enyo.kind({
 		}
 		// console.log("goToHref",this, this.get("path"), this.get("title"), this.$.title.content, "test");
 		return true;
+	},
+	next: function(inSender, inEvent) {
+		this.$.panels.next();
+		return true;
+	},
+	back: function(inSender, inEvent) {
+		this.$.panels.popPanel();
+		return true;
+	},
+	showPicture: function() {
+		this.$.pictureViewer.set("showing", true);
+		this.$.panels.set("showing", false);
+	},
+	showVideo: function() {
+		this.$.pictureViewer.set("showing", false);
+		this.$.panels.set("showing", false);
+	},
+	createDirectoryPanel: function(inOptions) {
+		if (!inOptions) {
+			inOptions = { path: "/" };
+		}
+		var p = enyo.clone(this.panelTemplate);
+		if (inOptions.initialTitle) {
+			p.title = inOptions.initialTitle;
+		}
+		p.path = inOptions.path;
+		return p;
+	},
+	createDirectoryPanels: function(inPathArray) {
+		if (!inPathArray || !enyo.isArray(inPathArray)) {
+			inPathArray = [""];
+		}
+		// Take our path array and generate some panels using it
+		var ps = [],
+			path = "";
+		// Paths are fully wrapped in slashes: /dir1/dir2/
+		for (var i = 0; i < inPathArray.length; i++) {
+			var dirName = inPathArray[i];
+			path+= dirName + "/";
+			ps.push(this.createDirectoryPanel({path: path, initialTitle: dirName || "/Home"}));
+		}
+		return ps;
 	},
 	storeFetch: function(inOptions) {
 		if (!inOptions.path ||
@@ -238,9 +278,6 @@ enyo.kind({
 			strategy: "merge"
 		});
 		return true;
-	},
-	handlePanelContentAreaReady: function(inSender, inEvent) {
-		this.assignPanelContents(inEvent.originator);
 	},
 	assignPanelContents: function(inPanel) {
 		if (inPanel.get("directoryLoaded")) { return true; }
@@ -306,65 +343,33 @@ enyo.kind({
 			}
 		});
 		return true;
-	},
-	createDirectoryPanel: function(inOptions) {
-		if (!inOptions) {
-			inOptions = { path: "/" };
-		}
-		var p = enyo.clone(this.panelTemplate);
-		if (inOptions.initialTitle) {
-			p.title = inOptions.initialTitle;
-		}
-		p.path = inOptions.path;
-		return p;
-	},
-	createDirectoryPanels: function(inPathArray) {
-		if (!inPathArray || !enyo.isArray(inPathArray)) {
-			inPathArray = [""];
-		}
-		// Take our path array and generate some panels using it
-		var ps = [],
-			path = "";
-		// Paths are fully wrapped in slashes: /dir1/dir2/
-		for (var i = 0; i < inPathArray.length; i++) {
-			var dirName = inPathArray[i];
-			path+= dirName + "/";
-			ps.push(this.createDirectoryPanel({path: path, initialTitle: dirName || "/Home"}));
-		}
-		return ps;
-	},
-	openDirectory: function(inSender, inEvent) {
-		// create a new panel and initialize it
-		var p = this.createDirectoryPanel({path: inEvent.file.get("path")});
-		this.$.panels.pushPanel(p);
-		return true;
-	},
-	getBreadCrumbs: function(arrPath) {
-		if (arrPath === undefined) {
-			arrPath = this.app.loc.pathArray;
-		}
-		if (arrPath instanceof String) {
-			arrPath = this.app.getPathArray( arrPath );
-		}
-		arrPath.unshift("Home");
-		var r = [];
-		for (var i = 0; i < arrPath.length; i++) {
-			var strPath = arrPath[i],
-				strHref = "",
-				objButton = {kind: "B.LinkButton", content: strPath};
-			if (i < arrPath.length) {
-				for (var j = i+1; j < arrPath.length; j++) {
-					strHref+= "../";
-				}
-			}
-			if (strHref) {
-				objButton.href = strHref;
-			}
-			if (i == arrPath.length - 1) {
-				objButton.active = true;
-			}
-			r.push(objButton);
-		}
-		return r;
 	}
+	// getBreadCrumbs: function(arrPath) {
+		// if (arrPath === undefined) {
+			// arrPath = this.app.loc.pathArray;
+		// }
+		// if (arrPath instanceof String) {
+			// arrPath = this.app.getPathArray( arrPath );
+		// }
+		// arrPath.unshift("Home");
+		// var r = [];
+		// for (var i = 0; i < arrPath.length; i++) {
+			// var strPath = arrPath[i],
+				// strHref = "",
+				// objButton = {kind: "B.LinkButton", content: strPath};
+			// if (i < arrPath.length) {
+				// for (var j = i+1; j < arrPath.length; j++) {
+					// strHref+= "../";
+				// }
+			// }
+			// if (strHref) {
+				// objButton.href = strHref;
+			// }
+			// if (i == arrPath.length - 1) {
+				// objButton.active = true;
+			// }
+			// r.push(objButton);
+		// }
+		// return r;
+	// }
 });
