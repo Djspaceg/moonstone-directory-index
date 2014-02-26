@@ -1,4 +1,187 @@
 enyo.kind({
+	name: "B.DirectoryPanel",
+	kind: "moon.Panel",
+	classes: "moon-7h",
+	smallHeader: true,
+	title: "Loading...",
+	path: null,
+	directoryLoaded: false,
+	published: {
+		backgroundSrc: null
+	},
+	headerComponents: [
+		{classes: "toolbar", components: [
+			{kind: "moon.IconButton", icon: "drawer", classes: "icon-refresh", ontap: "reload"}
+		]}
+	],
+	components: [
+		// {name: "loadingSpinner", kind: "moon.IconButton", classes: "moon-spinner", small: false}
+	],
+	bindings: [
+		{from: ".$.movieInfo.title", to: ".title"},
+		{from: ".$.movieInfo.subtitle", to: ".titleBelow"},
+		{from: ".$.movieInfo.tagline", to: ".subTitleBelow"},
+		{from: ".$.movieInfo.fanartSrc", to: ".backgroundSrc"}
+	],
+	events: {
+		onReady: "",
+		onDirectoryLoad: "",
+		onDirectoryLoaded: ""
+	},
+	handlers: {
+		// onPostTransitionComplete: "eventVars",
+		onReady: "assignPanelContents",
+		onDirectoryLoad: "assignPanelContents",
+		onDirectoryLoaded: "handleDirectoryLoaded"
+	},
+	// destroy: function() {
+	// 	console.log("About to destroy this poor innocent panel:", this);
+	// 	debugger;
+	// 	this.inherited(arguments);
+	// },
+	eventVars: function(inSender, inEvent) {
+		console.log(inEvent.type, "-> inSender:", inSender, "inEvent:",inEvent);
+	},
+	reload: function(inSender, inEvent) {
+		// console.log("Running Reload:", inEvent);
+		this.set("directoryLoaded", false);
+	},
+	directoryLoadedChanged: function() {
+		// console.log("directoryLoaded is now %s", this.get("directoryLoaded"));
+		if (!this.get("directoryLoaded")) {
+			this.doDirectoryLoad();
+		}
+	},
+	handleDirectoryLoaded: function(inSender, inEvent) {
+		// console.log("Directory Loaded Event Fired:", inEvent);
+		this.set("directoryLoaded", true);
+	},
+	backgroundSrcChanged: function() {
+		var bgSrc = this.get("backgroundSrc");
+		// console.log("this.$:", this.$);
+		// this.$.loadingSpinner.set("showing", bgSrc ? true : false);
+		this.applyStyle("background-image", (bgSrc) ? "url('" + bgSrc + "')": "inherit");
+	},
+	storeFetch: function(inOptions) {
+		if (!inOptions.path ||
+			!inOptions.storeModel ||
+			!inOptions.componentModel ||
+			!inOptions.success
+			) {
+			return false;
+		}
+		if (!inOptions.fail) {
+			inOptions.fail = function() {};
+		}
+		console.log("storeFetch:inOptions.path:", inOptions.path);
+		var m = enyo.store.findLocal(inOptions.storeModel, { path: inOptions.path });
+		if (m) {
+			console.log("Path found in store:", inOptions.path, m);
+			inOptions.success.call(this, m);
+			return true;
+		}
+		console.log("Path NOT found in store:", inOptions.path);
+		// debugger;
+		m = this.createComponent({name: inOptions.path, path: inOptions.path, kind: inOptions.componentModel}, {owner: this.owner});
+			// , global: true
+			// , destroy: function() {
+				// console.log("About to destroy this poor innocent MODEL:", this);
+				// console.trace();
+				// debugger;
+				// this.inherited(arguments);
+			// }
+		// });
+		// console.log("Model doesn't exist yet. Creating for %s...", inOptions.path);
+		m.fetch({
+			success: enyo.bind(this, function(inObj,inBindOptions,inData) {
+				// console.log("Model fetched successfully. Args:", inData, m.at(0));
+				inOptions.success.call(this, m.at(0) || inData);
+			}),
+			fail: enyo.bind(this, function(inObj,inBindOptions,inData) {
+				// console.log("Model fetch FAILED. Args:", inObj,inBindOptions,inData);
+				inOptions.fail.apply(this, arguments);
+				// mi.destroy();
+			}),
+			strategy: "merge"
+		});
+		return true;
+	},
+
+	assignPanelContents: function() {
+		var path = this.get("path");
+		if (this.get("directoryLoaded")) {
+			console.log("Not necessary to fetch, already loaded...");
+			return true;
+		}
+		else {
+			console.log("Must fetch new directory index for %s.", path);
+		}
+		this.storeFetch({
+			path: path,
+			storeModel: "mdlDirectory",
+			componentModel: "mdlFileSystem",
+			success: function(inModel) {
+				var di,
+					bitMediaFolder = inModel.get("hasMedia");
+
+				if (bitMediaFolder) {
+					this.storeFetch({
+						path: path + (inModel.get("nfo") || "fail.noNfoFileExists"),
+						storeModel: "mdlMovie",
+						componentModel: "mdlMovieInfo",
+						success: function(inMovieModel) {
+							// console.log("Fetch of %s Successful.", path, inModel, "inMovieModel", inMovieModel);
+							this.destroyClientControls();
+							di = this.createComponent({
+								name: "movieInfo",
+								kind: "B.MovieInfo",
+								path: path,
+								model: inModel,
+								modelMovieInfo: inMovieModel
+							});
+
+							this.app.setMultiple(this, di.get("parentOptions"));
+							this.app.setMultiple(this.$.header, di.get("headerOptions"));
+
+							di.render();
+						},
+						fail: function(inObj,inBindOptions,inData) {
+							var strMovieName = inModel.get("basename"),
+								title = strMovieName.replace(/\s*\(\d+\)\s*$/, ""),
+								year = strMovieName.match(/\((\d+)\)\s*$/) ? strMovieName.replace(/^.*\((\d+)\)\s*$/, "$1") : "",
+								m = this.createComponent({kind: "mdlMovie"});
+
+							// console.log("Fetch of %s FAILED.", strMovieName, arguments);
+
+							m.set("title", title);
+							m.set("year", year);
+
+							// We're just going to run the success, as if it worked, but pass in custom data...
+							inBindOptions.success.call(this, inObj, inBindOptions, m);
+						}
+					});
+				}
+				else {
+					this.set("title", inModel.get("title"));
+					this.set("titleBelow", inModel.get("path"));
+					this.destroyClientControls();
+
+					di = this.createComponent({
+						kind: "B.DirectoryIndex",
+						path: path
+					});
+
+					di.set("model", inModel );
+					di.render();
+				}
+				this.doDirectoryLoaded();
+			}
+		});
+		return true;
+	}
+});
+
+enyo.kind({
 	name: "B.MainView",
 	classes: "moon enyo-fit enyo-unselectable",
 	components: [
@@ -42,56 +225,17 @@ enyo.kind({
 			]
 		},
 		{name: "pictureViewer", kind: "enyo.ImageView", classes: "picture-viewer enyo-fit", src:""},
-		{name: "panels", kind: "moon.Panels", pattern: "activity", classes: "enyo-fit", useHandle: true}
+		{name: "panels", kind: "moon.Panels", pattern: "activity", classes: "enyo-fit", wrap: true, useHandle: true}
 	],
 	panelTemplate: {
-		kind: "moon.Panel",
-		classes: "moon-7h",
-		smallHeader: true,
-		title: "Loading...",
-		path: null,
-		published: {
-			backgroundSrc: null,
-			directoryLoaded: false
-		},
-		// headerComponents: [
-			// {name: "toolbar", components: [
-				// {kind: "moon.IconButton", icon: "drawer", classes: "icon-refresh", ontap: "update"}
-			// ]}
-		// ],
-		components: [
-			// {name: "loadingSpinner", kind: "moon.IconButton", classes: "moon-spinner", small: false}
-		],
-		bindings: [
-			{from: ".$.movieInfo.title", to: ".title"},
-			{from: ".$.movieInfo.subtitle", to: ".titleBelow"},
-			{from: ".$.movieInfo.tagline", to: ".subTitleBelow"},
-			{from: ".$.movieInfo.fanartSrc", to: ".backgroundSrc"}
-		],
-		events: {
-			onPanelContentAreaReady: "",
-			onDirectoryLoaded: ""
-		},
-		handlers: {
-			onDirectoryLoaded: "directoryLoadFinished"
-		},
-		backgroundSrcChanged: function() {
-			var bgSrc = this.get("backgroundSrc");
-			// console.log("this.$:", this.$);
-			// this.$.loadingSpinner.set("showing", bgSrc ? true : false);
-			this.applyStyle("background-image", (bgSrc) ? "url('" + bgSrc + "')": "inherit");
-		},
-		directoryLoadFinished: function(inSender, inEvent) {
-			// console.log("Directory Loaded Event Fired:", inEvent);
-			this.set("directoryLoaded", true);
-		}
+		kind: "B.DirectoryPanel"
 	},
 	events: {
 		onOpenDirectory: ""
 	},
 	handlers: {
 		onOpenDirectory: "handleOpenDirectory",
-		onPanelContentAreaReady: "handlePanelContentAreaReady",
+		onPanelReady: "handlePanelReady",
 		// onTransitionStart: "handleTransitionStart",
 		onTransitionFinish:	"handleTransitionFinish",
 		onPlay:	"handlePlay",
@@ -123,19 +267,19 @@ enyo.kind({
 		
 		// Take our path array and generate some panels using it
 		var ps = this.createDirectoryPanels(this.app.get("locPathArray"));
-		this.$.panels.pushPanels(ps);
+		this.$.panels.pushPanels(ps, null, {setIndex: -1});
 		
 		// Manually fire the assign function, since we won't have a transition to rely on with only one panel.
 		if (this.$.panels.getPanels().length <= 1) {
-			this.assignPanelContents(this.$.panels.getActive());
+			this.$.panels.getActive().doReady();
 		}
 		// console.log("Panel Create:", this, arrBread);
 	},
 	eventVars: function(inSender, inEvent) {
 		console.log(inEvent.type, "-> inSender:", inSender, "inEvent:",inEvent);
 	},
-	handlePanelContentAreaReady: function(inSender, inEvent) {
-		this.assignPanelContents(inEvent.originator);
+	handlePanelReady: function(inSender, inEvent) {
+		inEvent.originator.doReady();
 	},
 	handleOpenDirectory: function(inSender, inEvent) {
 		// create a new panel and initialize it
@@ -151,18 +295,19 @@ enyo.kind({
 			p = panels.getActive();
 
 		if (inEvent.toIndex < inEvent.fromIndex) {
-			// console.log("We removed a panel and went back to index: %s; from: %s;", inEvent.toIndex, inEvent.fromIndex);
+			console.log("We removed a panel and went back to index: %s; from: %s;", inEvent.toIndex, inEvent.fromIndex);
+			// debugger;
 			panels.popPanels(inEvent.toIndex + 1);
 		}
-		else if (inEvent.toIndex > inEvent.fromIndex) {
+		// else if (inEvent.toIndex > inEvent.fromIndex) {
 			// console.log("We loaded a new panel at index: %s;", inEvent.toIndex, inEvent);
-		}
-		else {
+		// }
+		// else {
 			// console.log("We reloaded the same panel at index: %s;", inEvent.toIndex);
-		}
+		// }
 		this.app.set("locPath", p.path);
 
-		panels.getActive().doPanelContentAreaReady();
+		p.doReady();
 	},
 	handlePlay: function(inSender, inEvent) {
 		var objMovieInfo = inEvent.originator;
@@ -203,6 +348,17 @@ enyo.kind({
 		}
 		// console.log("goToHref",this, this.get("path"), this.get("title"), this.$.title.content, "test");
 		return true;
+	},
+	handleReload: function(inSender, inEvent) {
+		console.log("handleReload:inEvent:", inEvent);
+		var p = this.$.panels.getActive(),
+			path = p.get("path");
+
+		// var m = enyo.store.findLocal("mdlDirectory", { path: path });
+		// if (m) {
+		// 	m.destroy();
+		// }
+		p.assignPanelContents();
 	},
 	next: function(inSender, inEvent) {
 		this.$.panels.next();
@@ -245,104 +401,6 @@ enyo.kind({
 			ps.push(this.createDirectoryPanel({path: path, initialTitle: dirName || "/Home"}));
 		}
 		return ps;
-	},
-	storeFetch: function(inOptions) {
-		if (!inOptions.path ||
-			!inOptions.storeModel ||
-			!inOptions.componentModel ||
-			!inOptions.success
-			) {
-			return false;
-		}
-		if (!inOptions.fail) {
-			inOptions.fail = function() {};
-		}
-		// console.log("storeFetch:inOptions.path:", inOptions.path, inOptions);
-		var m = enyo.store.findLocal(inOptions.storeModel, { path: inOptions.path });
-		if (m) {
-			inOptions.success.call(this, m);
-			return true;
-		}
-		m = this.createComponent({name: inOptions.path, path: inOptions.path, kind: inOptions.componentModel});
-		// console.log("Model doesn't exist yet. Creating for %s...", inOptions.path);
-		m.fetch({
-			success: enyo.bind(this, function(inObj,inBindOptions,inData) {
-				// console.log("Model fetched successfully. Args:", inData, m.at(0));
-				inOptions.success.call(this, m.at(0) || inData);
-			}),
-			fail: enyo.bind(this, function(inObj,inBindOptions,inData) {
-				// console.log("Model fetch FAILED. Args:", inObj,inBindOptions,inData);
-				inOptions.fail.apply(this, arguments);
-				// mi.destroy();
-			}),
-			strategy: "merge"
-		});
-		return true;
-	},
-	assignPanelContents: function(inPanel) {
-		if (inPanel.get("directoryLoaded")) { return true; }
-		this.storeFetch({
-			path: inPanel.path,
-			storeModel: "mdlDirectory",
-			componentModel: "mdlFileSystem",
-			success: function(inModel) {
-				var di,
-					bitMediaFolder = inModel.get("hasMedia");
-
-				if (bitMediaFolder) {
-					this.storeFetch({
-						path: inPanel.path + (inModel.get("nfo") || "fail.noNfoFileExists"),
-						storeModel: "mdlMovie",
-						componentModel: "mdlMovieInfo",
-						success: function(inMovieModel) {
-							// console.log("Fetch of %s Successful.", inPanel.path, inModel, "inMovieModel", inMovieModel);
-							inPanel.destroyClientControls();
-							di = inPanel.createComponent({
-								name: "movieInfo",
-								kind: "B.MovieInfo",
-								path: inPanel.path,
-								model: inModel,
-								modelMovieInfo: inMovieModel
-							});
-
-							this.app.setMultiple(inPanel, di.get("parentOptions"));
-							this.app.setMultiple(inPanel.$.header, di.get("headerOptions"));
-
-							di.render();
-						},
-						fail: function(inObj,inBindOptions,inData) {
-							var strMovieName = inModel.get("basename"),
-								title = strMovieName.replace(/\s*\(\d+\)\s*$/, ""),
-								year = strMovieName.match(/\((\d+)\)\s*$/) ? strMovieName.replace(/^.*\((\d+)\)\s*$/, "$1") : "",
-								m = this.createComponent({kind: "mdlMovie"});
-
-							// console.log("Fetch of %s FAILED.", strMovieName, arguments);
-
-							m.set("title", title);
-							m.set("year", year);
-
-							// We're just going to run the success, as if it worked, but pass in custom data...
-							inBindOptions.success.call(this, inObj, inBindOptions, m);
-						}
-					});
-				}
-				else {
-					inPanel.set("title", inModel.get("title"));
-					inPanel.set("titleBelow", inModel.get("path"));
-					inPanel.destroyClientControls();
-
-					di = inPanel.createComponent({
-						kind: "B.DirectoryIndex",
-						path: inPanel.path
-					});
-
-					di.set("model", inModel );
-					di.render();
-				}
-				inPanel.doDirectoryLoaded();
-			}
-		});
-		return true;
 	}
 	// getBreadCrumbs: function(arrPath) {
 		// if (arrPath === undefined) {
