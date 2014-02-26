@@ -1,29 +1,6 @@
-// (function (enyo) {
-	//*@public
-	/**
-		A generic source for use with an Ajax-ready backend. It uses the "GET"
-		method for _fetch()_, "POST" or "PUT" for _commit()_ (depending on whether
-		the record is _new_ (created locally), and "DELETE" for _destroy()_.
-	*/
-	// enyo.kind({
-		// name: "B.XmlSource",
-		// kind: enyo.AjaxSource,
-		// //* Uses the _enyo.Ajax_ kind for requests
-		// requestKind: enyo.Ajax,
-		// handleAs: "xml",
-		// //* Uses "GET" method.
-		// fetch: function (rec, opts) {
-			// opts.method = "GET";
-			// opts.url = this.buildUrl(rec, opts);
-			// this.go(opts);
-		// }
-	// });
-	// enyo.store.addSources({xml: "B.XmlSource"});
-// })(enyo);
-
 enyo.kind({
 	name: "mdlMovie",
-	kind: enyo.Model,
+	kind: "enyo.Model",
 	readOnly: true,
 	attributes: {
 		suptitle: function() {
@@ -57,14 +34,14 @@ enyo.kind({
 
 enyo.kind({
 	name: "mdlMovieInfo",
-	kind: enyo.Collection,
+	kind: "enyo.Collection",
 	model: "mdlMovie",
-	defaultSource: "jsonp",
-	url: "http://%./json%.",
-	path: "",
-	getUrl: function () {
-		// Inject the path into the right place in the URL we are going to fetch.
-		return enyo.format(this.url, this.app.get("fileServerHost"), this.path);
+	defaultSource: "noche",
+	published: {
+		host: function() { return this.app.get("fileServerHost"); }
+	},
+	computed: {
+		host: [{cached: true}]
 	},
 	parse: function (data) {
 		if (data.movie) {

@@ -16,7 +16,9 @@ enyo.depends(
 	"style",
 	// Configuration files and definitions
 	"../conf",
-	// Model and data definitions
+	// Data definitions
+	"data",
+	// Model definitions
 	"models",
 	// Controller kinds for the application(s)
 	"controllers",

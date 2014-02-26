@@ -161,14 +161,14 @@ enyo.kind({
 /// FileSystem Model //////////////////////////////////////
 enyo.kind({
 	name: "mdlFileSystem",
-	kind: enyo.Collection,
+	kind: "enyo.Collection",
 	model: "mdlDirectory",
-	defaultSource: "jsonp",
-	url: "http://%./json/%.",
-	path: "",
-	getUrl: function () {
-		// Inject the path into the right place in the URL we are going to fetch.
-		return enyo.format(this.url, this.app.get("fileServerHost"), this.path);
+	defaultSource: "noche",
+	published: {
+		host: function() { return this.app.get("fileServerHost"); }
+	},
+	computed: {
+		host: [{cached: true}]
 	},
 	// primaryKey: 'name',
 	parse: function (data) {

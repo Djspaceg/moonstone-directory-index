@@ -82,7 +82,7 @@ enyo.kind({
 		}
 		console.log("Path NOT found in store:", inOptions.path);
 		// debugger;
-		m = this.createComponent({name: inOptions.path, path: inOptions.path, kind: inOptions.componentModel}, {owner: this.owner});
+		m = this.createComponent({name: inOptions.path, url: inOptions.path, kind: inOptions.componentModel}, {owner: this.owner});
 			// , global: true
 			// , destroy: function() {
 				// console.log("About to destroy this poor innocent MODEL:", this);
