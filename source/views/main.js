@@ -7,6 +7,7 @@ enyo.kind({
 			kind: "moon.VideoPlayer",
 			src: "",
 			poster: "",
+			showInfoBackground: true,
 			shakeAndWake: true,
 			autoplay: true,
 			infoComponents: [
@@ -14,7 +15,7 @@ enyo.kind({
 					{
 						name: "playerMediaInfo",
 						kind: "B.MediaInfo",
-						classes: "moon-2h",
+						// classes: "moon-2h",
 						// channelNo: "13",
 						// channelName: "AMC",
 						components: [
