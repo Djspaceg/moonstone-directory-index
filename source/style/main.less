@@ -1,3 +1,12 @@
+@import-once "../../lib/moonstone/css/moonstone-variables-dark.less";
+@import-once "../../lib/moonstone/css/moonstone-variables.less";
+
+.enyo-data-list .moon-item {
+	border: @moon-button-border-width solid transparent;
+}
+.enyo-data-list .selected .moon-item {
+	border: @moon-button-border-width solid @moon-spotlight-border-color;
+}
 
 .moon-video-transport-slider {
 	height: 10px;
@@ -20,7 +29,8 @@
 }
 
 .picture-viewer {
-	background: #4B5259 linear-gradient(to bottom right, #4B5259 0%, #0C0F11 100%);
+	// background: #4B5259 linear-gradient(to bottom right, #4B5259 0%, #0C0F11 100%);
+	background: #52001F linear-gradient(to top, #52001F 0%, #0C0F11 100%);
 }
 .media-info-player-poster {
 	margin-top: 20px;

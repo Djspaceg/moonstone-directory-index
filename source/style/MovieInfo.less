@@ -1,3 +1,6 @@
+@import-once "../../lib/moonstone/css/moonstone-variables-dark.less";
+@import-once "../../lib/moonstone/css/moonstone-variables.less";
+
 .movie-info {
 	@movie-info-pane-padding: 30px;
 	@movie-info-text-padding: 10px;
@@ -12,11 +15,28 @@
 		bottom: 210px;
 		left: (@movie-info-pane-padding + @movie-info-poster-width + 20px);
 		right: @movie-info-pane-padding;
+		z-index: 2;
 	}
 	.movie-info-header {
 		border-color: transparent;
 		border-bottom-color: white;
 	}
+	.moon-list-actions-drawer-client {
+		background-color: rgba(136, 136, 136, 0.7);
+		border-top-left-radius: 38px;
+		border-top-right-radius: 38px;
+		.moon-popup-close {
+			// opacity: 0.8;
+			background-color: transparent;
+			&.spotlight {
+				background-color: @moon-spotlight-background-color;
+			}
+		}
+		.moon-list-actions-client-container {
+			background-color: transparent;
+		}
+	}
+
 	.moon-panel-body {
 		height: 100% !important;
 	}
@@ -32,7 +52,10 @@
 		text-shadow: 0 5px 15px rgba(0, 0, 0, 1), 0 5px 15px rgba(0, 0, 0, 0.5);
 	}
 	.moon-header-title-below {
-		padding-right: 7ex;
+		padding-right: 13ex;
+	}
+	.moon-header-sub-title-below {
+		padding-right: 6ex;
 	}
 	.movie-info-poster,
 	.movie-info-plot-frame {
@@ -82,7 +105,7 @@
 		right: 0;
 		position: absolute;
 		bottom: 256px;
-		margin-right: @movie-info-pane-padding + @movie-info-text-padding;
+		margin-right: 70px + @movie-info-pane-padding + @movie-info-text-padding;
 	}
 	.movie-info-plot-frame {
 		left: (@movie-info-pane-padding + @movie-info-poster-width + 20px);

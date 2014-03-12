@@ -5,5 +5,6 @@ enyo.depends(
 	"DataPanels.js",
 	"MediaInfo.js",
 	"DirectoryIndex.js",
+	"DirectoryPanel.js",
 	"MovieInfo.js"
 );

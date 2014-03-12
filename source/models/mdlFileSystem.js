@@ -1,3 +1,16 @@
+enyo.kind({
+	name: "B.NocheCollection",
+	kind: "enyo.Collection",
+	defaultSource: "noche",
+	// published: {
+	// 	host: function() { console.log("B.NocheCollection:host:",this); return this.app.get("fileServerHost"); }
+	// },
+	// computed: {
+	// 	host: [{cached: true}]
+	// }
+});
+
+
 /// File Model ////////////////////////////////////////////
 enyo.kind({
 	name: "mdlFile",
@@ -8,7 +21,8 @@ enyo.kind({
 		icon: function () {
 			var media = this.get("hasMedia");
 			if (media) {
-				return "http://" + enyo.$.directoryIndex_mainView.app.get("fileServerHost") + this.get("path") + media;
+				return "http://" + this.get("app").get("fileServerHost") + this.get("path") + media;
+				// return "http://" + enyo.$.directoryIndex_mainView.app.get("fileServerHost") + this.get("path") + media;
 			}
 			return this.getIconSrc(this.get("ext"));
 		},
@@ -64,6 +78,11 @@ enyo.kind({
 		"mp3":		"/moonstone-directory-index/assets/icons/128/mp3-128.png",
 		"flv":		"/moonstone-directory-index/assets/icons/128/flv-128.png"
 	},
+	// create: function() {
+		// debugger;
+		// this.inherited(arguments);
+		// console.log("mdlFile:create:", this);
+	// },
 	formatSize: function(size) {
 		var arrSizes = ['bytes','KB','MB','GB','TB'];
 		if (size > 0) {
@@ -87,12 +106,42 @@ enyo.kind({
 	}
 });
 
+/// Files Collection //////////////////////////////////////
+enyo.kind({
+	name: "mdlFiles",
+	// kind: "enyo.Collection",
+	kind: "B.NocheCollection",
+	model: "mdlFile",
+	// defaultSource: "noche",
+	// published: {
+		// host: function() { return this.app.get("fileServerHost"); }
+	// },
+	// computed: {
+		// host: [{cached: true}]
+	// },
+	// primaryKey: 'name',
+	parse: function (data) {
+		// console.log("mdlFiles:", this);
+		// Give our precious app reference to all of our file models
+		for (var i = data.length - 1; i >= 0; i--) {
+			data[i].app = this.app;
+		}
+
+		return data;
+	}
+});
+
 /// Directory Model ///////////////////////////////////////
 enyo.kind({
 	name: "mdlDirectory",
-	kind: enyo.Model,
+	kind: "enyo.Model",
 	readOnly: true,
 	attributes: {
+		// key: "",
+		// key: function() {
+		// 	return this.get("host") + this.get("path");
+		// },
+		host: "",
 		basename: "",
 		nfo: "",
 		poster: "",
@@ -108,11 +157,19 @@ enyo.kind({
 		}
 	},
 	computed: {
+		key: [{cached: true}, ["host", "path"]],
 		title: [{cached: true}, "name"]
 	},
-	primaryKey: "path",
+	primaryKey: "key",
 	parse: function (data) {
-		data.contents = new enyo.Collection(data.contents, {model: "mdlFile", didFetch: true}); // owner: this <- causes .getId error
+		// debugger;
+		var collectionId = "mdlDirectory:" + data.path;
+		// data.contents = new enyo.Collection(data.contents, {id: collectionId, model: "mdlFile", didFetch: true, owner: this}); // owner: this <- causes .getId error
+		data.contents = new mdlFiles(data.contents, {id: collectionId, app: data.app, didFetch: true, owner: this}); // owner: this <- causes .getId error
+		// data.contents = this.createComponent({kind: "enyo.Collection", collection: data.contents, model: "mdlFile", didFetch: true}); // owner: this <- causes .getId error
+		// data.contents = this.createComponent({name: data.path, url: data.path, kind: "mdlFiles"});
+		data.host = data.app.get("fileServerHost");
+		data.key = data.host + data.path;
 		if (data.hasMedia) {
 			var objMedia = this.mediaFolderRecon(data);
 			enyo.mixin(data, objMedia);
@@ -161,20 +218,21 @@ enyo.kind({
 /// FileSystem Model //////////////////////////////////////
 enyo.kind({
 	name: "mdlFileSystem",
-	kind: "enyo.Collection",
+	// kind: "enyo.Collection",
+	kind: "B.NocheCollection",
 	model: "mdlDirectory",
-	defaultSource: "noche",
-	published: {
-		host: function() { return this.app.get("fileServerHost"); }
-	},
-	computed: {
-		host: [{cached: true}]
-	},
+	// defaultSource: "noche",
+	// published: {
+		// host: function() { return this.app.get("fileServerHost"); }
+	// },
+	// computed: {
+		// host: [{cached: true}]
+	// },
 	// primaryKey: 'name',
 	parse: function (data) {
 		// the data comes back as an object with a property that is the
 		data.filesystem[0].app = this.app;
-
+		console.log("mdlFileSystem: B.NocheCollection:", this);
 		return data.filesystem;
 	}
 });

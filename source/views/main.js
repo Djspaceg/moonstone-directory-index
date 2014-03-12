@@ -1,187 +1,4 @@
 enyo.kind({
-	name: "B.DirectoryPanel",
-	kind: "moon.Panel",
-	classes: "moon-7h",
-	smallHeader: true,
-	title: "Loading...",
-	path: null,
-	directoryLoaded: false,
-	published: {
-		backgroundSrc: null
-	},
-	headerComponents: [
-		{classes: "toolbar", components: [
-			{kind: "moon.IconButton", icon: "drawer", classes: "icon-refresh", ontap: "reload"}
-		]}
-	],
-	components: [
-		// {name: "loadingSpinner", kind: "moon.IconButton", classes: "moon-spinner", small: false}
-	],
-	bindings: [
-		{from: ".$.movieInfo.title", to: ".title"},
-		{from: ".$.movieInfo.subtitle", to: ".titleBelow"},
-		{from: ".$.movieInfo.tagline", to: ".subTitleBelow"},
-		{from: ".$.movieInfo.fanartSrc", to: ".backgroundSrc"}
-	],
-	events: {
-		onReady: "",
-		onDirectoryLoad: "",
-		onDirectoryLoaded: ""
-	},
-	handlers: {
-		// onPostTransitionComplete: "eventVars",
-		onReady: "assignPanelContents",
-		onDirectoryLoad: "assignPanelContents",
-		onDirectoryLoaded: "handleDirectoryLoaded"
-	},
-	// destroy: function() {
-	// 	console.log("About to destroy this poor innocent panel:", this);
-	// 	debugger;
-	// 	this.inherited(arguments);
-	// },
-	eventVars: function(inSender, inEvent) {
-		console.log(inEvent.type, "-> inSender:", inSender, "inEvent:",inEvent);
-	},
-	reload: function(inSender, inEvent) {
-		// console.log("Running Reload:", inEvent);
-		this.set("directoryLoaded", false);
-	},
-	directoryLoadedChanged: function() {
-		// console.log("directoryLoaded is now %s", this.get("directoryLoaded"));
-		if (!this.get("directoryLoaded")) {
-			this.doDirectoryLoad();
-		}
-	},
-	handleDirectoryLoaded: function(inSender, inEvent) {
-		// console.log("Directory Loaded Event Fired:", inEvent);
-		this.set("directoryLoaded", true);
-	},
-	backgroundSrcChanged: function() {
-		var bgSrc = this.get("backgroundSrc");
-		// console.log("this.$:", this.$);
-		// this.$.loadingSpinner.set("showing", bgSrc ? true : false);
-		this.applyStyle("background-image", (bgSrc) ? "url('" + bgSrc + "')": "inherit");
-	},
-	storeFetch: function(inOptions) {
-		if (!inOptions.path ||
-			!inOptions.storeModel ||
-			!inOptions.componentModel ||
-			!inOptions.success
-			) {
-			return false;
-		}
-		if (!inOptions.fail) {
-			inOptions.fail = function() {};
-		}
-		console.log("storeFetch:inOptions.path:", inOptions.path);
-		var m = enyo.store.findLocal(inOptions.storeModel, { path: inOptions.path });
-		if (m) {
-			console.log("Path found in store:", inOptions.path, m);
-			inOptions.success.call(this, m);
-			return true;
-		}
-		console.log("Path NOT found in store:", inOptions.path);
-		// debugger;
-		m = this.createComponent({name: inOptions.path, url: inOptions.path, kind: inOptions.componentModel}, {owner: this.owner});
-			// , global: true
-			// , destroy: function() {
-				// console.log("About to destroy this poor innocent MODEL:", this);
-				// console.trace();
-				// debugger;
-				// this.inherited(arguments);
-			// }
-		// });
-		// console.log("Model doesn't exist yet. Creating for %s...", inOptions.path);
-		m.fetch({
-			success: enyo.bind(this, function(inObj,inBindOptions,inData) {
-				// console.log("Model fetched successfully. Args:", inData, m.at(0));
-				inOptions.success.call(this, m.at(0) || inData);
-			}),
-			fail: enyo.bind(this, function(inObj,inBindOptions,inData) {
-				// console.log("Model fetch FAILED. Args:", inObj,inBindOptions,inData);
-				inOptions.fail.apply(this, arguments);
-				// mi.destroy();
-			}),
-			strategy: "merge"
-		});
-		return true;
-	},
-
-	assignPanelContents: function() {
-		var path = this.get("path");
-		if (this.get("directoryLoaded")) {
-			console.log("Not necessary to fetch, already loaded...");
-			return true;
-		}
-		else {
-			console.log("Must fetch new directory index for %s.", path);
-		}
-		this.storeFetch({
-			path: path,
-			storeModel: "mdlDirectory",
-			componentModel: "mdlFileSystem",
-			success: function(inModel) {
-				var di,
-					bitMediaFolder = inModel.get("hasMedia");
-
-				if (bitMediaFolder) {
-					this.storeFetch({
-						path: path + (inModel.get("nfo") || "fail.noNfoFileExists"),
-						storeModel: "mdlMovie",
-						componentModel: "mdlMovieInfo",
-						success: function(inMovieModel) {
-							// console.log("Fetch of %s Successful.", path, inModel, "inMovieModel", inMovieModel);
-							this.destroyClientControls();
-							di = this.createComponent({
-								name: "movieInfo",
-								kind: "B.MovieInfo",
-								path: path,
-								model: inModel,
-								modelMovieInfo: inMovieModel
-							});
-
-							this.app.setMultiple(this, di.get("parentOptions"));
-							this.app.setMultiple(this.$.header, di.get("headerOptions"));
-
-							di.render();
-						},
-						fail: function(inObj,inBindOptions,inData) {
-							var strMovieName = inModel.get("basename"),
-								title = strMovieName.replace(/\s*\(\d+\)\s*$/, ""),
-								year = strMovieName.match(/\((\d+)\)\s*$/) ? strMovieName.replace(/^.*\((\d+)\)\s*$/, "$1") : "",
-								m = this.createComponent({kind: "mdlMovie"});
-
-							// console.log("Fetch of %s FAILED.", strMovieName, arguments);
-
-							m.set("title", title);
-							m.set("year", year);
-
-							// We're just going to run the success, as if it worked, but pass in custom data...
-							inBindOptions.success.call(this, inObj, inBindOptions, m);
-						}
-					});
-				}
-				else {
-					this.set("title", inModel.get("title"));
-					this.set("titleBelow", inModel.get("path"));
-					this.destroyClientControls();
-
-					di = this.createComponent({
-						kind: "B.DirectoryIndex",
-						path: path
-					});
-
-					di.set("model", inModel );
-					di.render();
-				}
-				this.doDirectoryLoaded();
-			}
-		});
-		return true;
-	}
-});
-
-enyo.kind({
 	name: "B.MainView",
 	classes: "moon enyo-fit enyo-unselectable",
 	components: [
@@ -225,7 +42,53 @@ enyo.kind({
 			]
 		},
 		{name: "pictureViewer", kind: "enyo.ImageView", classes: "picture-viewer enyo-fit", src:""},
-		{name: "panels", kind: "moon.Panels", pattern: "activity", classes: "enyo-fit", wrap: true, useHandle: true}
+		{
+			name: "drawers",
+			kind: "moon.Drawers",
+			drawers:[
+				{
+					name: "serversDrawer",
+					open: false,
+					controlsOpen: false,
+					onActivate: "drawerChangedServers",
+					onDeactivate: "drawerChangedServers",
+					handle: {name: "handleButton", content: "Servers"},
+					components: [
+						{kind: "moon.Panel", classes:"enyo-fit", title: "Add Server", headerComponents: [
+							{kind: "moon.Button", content: "Create Server", ontap: "handleAddServer"},
+							{kind: "moon.Button", name: "removeServerButton", content: "Delete Server", ontap: "handleRemoveServer"}
+						], components: [
+							{name: "serverDataList", kind: "moon.DataList", selection: true, multipleSelection: false, components: [
+								{classes: "enyo-border-box", components: [
+									{name: "serverItem", kind: "moon.Item", content: "serverName"}
+								], bindings: [
+									{from: ".model.title", to: ".$.serverItem.content"}
+								]}
+							]}
+						]}
+					],
+					controlDrawerComponents: [
+						{classes:"moon-hspacing", components: [
+							{kind: "moon.ContextualPopupDecorator", components: [
+								{kind: "moon.ContextualPopupButton", name: "serverPopupButton", content: "Server:"},
+								{kind: "moon.ContextualPopup", name: "serverPopup", classes:"moon-6h moon-8v", components: [
+									{kind:"moon.DataList", name:"serverPicker", components: [
+										{kind:"moon.Item", fit: true, ontap: "handleChooseServer", bindings: [
+											{from:".model.title", to:".content"}
+										]}
+									]}
+								]}
+							]},
+							{kind: "moon.Button", name: "addServersButton", content: "Add Servers", ontap: "openDrawerServers"},
+							{kind: "moon.IconButton", icon: "closex", classes: "moon-button", ontap: "closeDrawerServers", small: false}
+						]}
+					]
+				}
+			],
+			components: [
+				{name: "panels", kind: "moon.Panels", pattern: "activity", classes: "enyo-fit", wrap: true, useHandle: true}
+			]
+		}
 	],
 	panelTemplate: {
 		kind: "B.DirectoryPanel"
@@ -242,6 +105,8 @@ enyo.kind({
 		onOpen: "handleOpen"
 	},
 	bindings: [
+		{from: ".app.servers",			to: ".$.serverDataList.collection"},
+		{from: ".app.servers",			to: ".$.serverPicker.collection"},
 		{from: ".movieInfo.videoSrc",	to: ".$.player.src"},
 		{from: ".movieInfo.posterSrc",	to: ".$.player.poster"},
 		{from: ".movieInfo.posterSrc",	to: ".$.playerMediaInfo.posterSrc"},
@@ -249,9 +114,17 @@ enyo.kind({
 		{from: ".movieInfo.subtitle",	to: ".$.playerHeader.subTitle"},
 		{from: ".movieInfo.plot",		to: ".$.playerHeader.description"}
 	],
-	rendered: function () {
+	create: function() {
 		this.inherited(arguments);
-		this.generatePanelsFromPath();
+		this.app.prepareServersCollection();
+	},
+	rendered: function () {
+		// Do before render
+
+		this.inherited(arguments);
+		// Do after render
+		// this.generatePanelsFromPath();
+		this.chooseServer( this.app.get("server") );
 	},
 
 	/**
@@ -260,7 +133,6 @@ enyo.kind({
 	 * or put in a different #, it just goes directly to that set of panes.
 	 * 
 	 */
-
 
 	generatePanelsFromPath: function() {
 		// this.inherited(arguments);
@@ -271,6 +143,7 @@ enyo.kind({
 		
 		// Manually fire the assign function, since we won't have a transition to rely on with only one panel.
 		if (this.$.panels.getPanels().length <= 1) {
+			// this.assignPanelContents(this.$.panels.getActive());
 			this.$.panels.getActive().doReady();
 		}
 		// console.log("Panel Create:", this, arrBread);
@@ -278,7 +151,78 @@ enyo.kind({
 	eventVars: function(inSender, inEvent) {
 		console.log(inEvent.type, "-> inSender:", inSender, "inEvent:",inEvent);
 	},
+	openDrawer: function(inName) {
+		this.$[inName].setOpen(true);
+	},
+	closeDrawer: function(inName) {
+		if (this.$[inName].getOpen()) {
+			this.$[inName].setOpen(false);
+		} else {
+			this.$[inName].setControlsOpen(false);
+		}
+	},
+	drawerChanged: function(inName, inActivationButton) {
+		// debugger;
+		this.$[inActivationButton].setShowing(!this.$[inName].getOpen());
+	},
+	openDrawerServers: function() {
+		this.openDrawer("serversDrawer");
+	},
+	closeDrawerServers: function() {
+		this.closeDrawer("serversDrawer");
+	},
+	drawerChangedServers: function() {
+		this.drawerChanged("serversDrawer", "addServersButton");
+	},
+	closeDrawerFilter: function() {
+		this.closeDrawer("filterDrawer");
+	},
+
+	handleAddServer: function(inSender, inEvent) {
+		if (!this.$.addInput.getValue()) {
+			// this.$.result.setContent("Please insert content value.");
+			return;
+		}
+		var picker = this.$.serverPicker;
+		picker.createComponent({content:this.$.addInput.getValue()}).render();
+		// this.$.result.setContent("'" + this.$.addInput.getValue() + "' is added to " + picker.name);
+	},
+	handleSelectedServer: function(inSender, inEvent) {
+		if (inEvent.originator.get("active")) {
+			this.$.removeServerButton.set("disabled", false);
+		}
+		else {
+			this.$.removeServerButton.set("disabled", true);
+		}
+	},
+	handleChooseServer: function(inSender, inEvent) {
+		if (inEvent.originator.model) {
+			this.chooseServer(inEvent.originator.model);
+		}
+		this.$.serverPopup.closePopup();
+	},
+	chooseServer: function(inServerModel) {
+		this.$.serverPopupButton.set("content", "Server: " + inServerModel.get("title"));
+		this.app.set("server", inServerModel);
+		this.$.panels.destroyClientControls();
+		this.generatePanelsFromPath();
+	},
+	handleRemoveServer: function(inSender, inEvent) {
+		var list = this.$.serverDataList,
+			sel = list.get("selected");
+		if (sel) {
+			if (!enyo.isArray(sel)) {
+				sel = [sel];
+			}
+			for (var i = 0; i < sel.length; i++) {
+				sel[i].destroy();
+			}
+		}
+	},
+
+	//* Panels Handlers
 	handlePanelReady: function(inSender, inEvent) {
+		// inEvent.originator.assignPanelContents();
 		inEvent.originator.doReady();
 	},
 	handleOpenDirectory: function(inSender, inEvent) {
@@ -295,7 +239,7 @@ enyo.kind({
 			p = panels.getActive();
 
 		if (inEvent.toIndex < inEvent.fromIndex) {
-			console.log("We removed a panel and went back to index: %s; from: %s;", inEvent.toIndex, inEvent.fromIndex);
+			// console.log("We removed a panel and went back to index: %s; from: %s;", inEvent.toIndex, inEvent.fromIndex);
 			// debugger;
 			panels.popPanels(inEvent.toIndex + 1);
 		}
@@ -309,6 +253,8 @@ enyo.kind({
 
 		p.doReady();
 	},
+
+	//* Media and File Handlers
 	handlePlay: function(inSender, inEvent) {
 		var objMovieInfo = inEvent.originator;
 		if (objMovieInfo.kind === "B.MovieInfo") {
@@ -348,17 +294,6 @@ enyo.kind({
 		}
 		// console.log("goToHref",this, this.get("path"), this.get("title"), this.$.title.content, "test");
 		return true;
-	},
-	handleReload: function(inSender, inEvent) {
-		console.log("handleReload:inEvent:", inEvent);
-		var p = this.$.panels.getActive(),
-			path = p.get("path");
-
-		// var m = enyo.store.findLocal("mdlDirectory", { path: path });
-		// if (m) {
-		// 	m.destroy();
-		// }
-		p.assignPanelContents();
 	},
 	next: function(inSender, inEvent) {
 		this.$.panels.next();

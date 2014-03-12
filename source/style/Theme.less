@@ -9,9 +9,15 @@
     See [https://github.com/enyojs/enyo/wiki/UI-Theming] for more information.
 */
 
+.less-error-message {
+	position: absolute;
+	z-index: 999;
+	margin: 1em;
+}
 
 /* Moonstone default variable definitions: */
-// @import "../../lib/moonstone/css/moonstone-variables-light.less";
+// @import-once "../../lib/moonstone/css/moonstone-variables-light.less";
+@import "../../lib/moonstone/css/moonstone-variables-dark.less";
 @import "../../lib/moonstone/css/moonstone-variables.less";
 
 /* Place your Moonstone variable overrides here --------------- */

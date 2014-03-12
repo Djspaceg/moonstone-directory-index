@@ -5,7 +5,11 @@ enyo.kind({
 	components: [
 		{name: "router", kind: "B.Router"}
 	],
+	servers: null,
+	sources: [],
 	published: {
+		server: null,
+		sourceCount: 0,
 		locDir: "",
 		locPath: "",
 		locPathArray: function() {
@@ -19,8 +23,10 @@ enyo.kind({
 		fileServerHostname: "",
 		fileServerPort: "",
 		fileServerHost: function() {
-			var port = this.get("fileServerPort") ? ":" + this.get("fileServerPort") : "";
-			return this.get("fileServerHostname") + port;
+			var server = this.get("server");
+			return server.get("host");
+				// port = this.get("fileServerPort") ? ":" + this.get("fileServerPort") : "";
+			// return this.get("fileServerHostname") + port;
 		}
 	},
 	computed: {
@@ -76,5 +82,60 @@ enyo.kind({
 					inTarget.set(prop, inOptions[prop]);
 			}
 		}
-	}
+	},
+	prepareServersCollection: function() {
+		this.servers = new enyo.Collection(this.fileServers, {model: "B.Server"});
+		// debugger;
+		this.set("server", this.servers.at(0));
+	},
+	// setServer: function(inModel) {
+	// 	this.set(ser);
+	// },
+	addSource: function() {
+		var sourceIndex = this.sources.length,
+			sourceId = "noche",// + sourceIndex,
+			sourceName = sourceId + ".Source";
+
+		this.set("sourceEndIndex");
+		enyo.kind({
+			name: sourceName,
+			kind: "noche.Source",
+			defaultSource: "noche",
+			// url: "http://%./json/%.",
+			urlRoot: "http://%./json%.",
+			buildUrl: function(rec, opts) {
+				// console.log("noche.Source:buildUrl:", this, rec, opts);
+				// this.inherited(arguments);
+				var urlHost = rec.get("host") || "localhost",
+					urlPath = opts.url || (enyo.isFunction(rec.getUrl) && rec.getUrl()) || rec.url;
+				// console.log("noche.Source:buildUrl: '%s' = '%s' + '%s';", enyo.format(this.urlRoot, urlHost, urlPath), urlHost, urlPath);
+				return enyo.format(this.urlRoot, urlHost, urlPath);
+			}
+			// fetch: function(rec, opts) {
+				// console.log("noche.Source:fetch:", this, rec, opts);
+				// // opts.params = {};
+				// this.inherited(arguments);
+				// // debugger;
+			// }
+		});
+		var newSource = {};
+		newSource[sourceId] = sourceName;
+		enyo.store.addSources(newSource);
+		this.sources.push(sourceId);
+	},
+	// we overloaded the default `start` method to also call our `update` method
+	// once the view is rendered
+	start: enyo.inherit(function (sup) {
+		return function () {
+			sup.apply(this, arguments);
+			console.log("Application.start",this);
+
+			// this.prepareServersCollection();
+			// this.servers = new enyo.Collection(this.fileServers, {model: "B.Server"});
+			console.log("Application.servers",this.servers);
+
+			// this.addSource();
+			// this.$.mainView.update();
+		};
+	})
 });
