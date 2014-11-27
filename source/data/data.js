@@ -22,7 +22,7 @@ enyo.kind({
 	// }
 });
 
-/** 
+/**
  * I forgot why i wrote this, but it seemed really important at the time.
  * I think it related to the ability to pre-defined all the tedious parts of
  * the server name, then be able to switch in and out different hosts
@@ -54,5 +54,5 @@ enyo.kind({
 	}
 });
 
-enyo.store.addSources({noche: "noche.Source"});
+// enyo.store.addSources({noche: "noche.Source"});
 
