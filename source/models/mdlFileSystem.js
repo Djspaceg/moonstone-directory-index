@@ -1,7 +1,10 @@
 enyo.kind({
-	name: "B.NocheCollection",
-	kind: "enyo.Collection",
-	defaultSource: "noche",
+	name: 'B.NocheCollection',
+	kind: 'enyo.Collection',
+	// defaultSource: 'noche'
+	source: 'NocheSource',
+	// defaultSource: B.NocheSource
+	// source: B.NocheSource,
 	// published: {
 	// 	host: function() { console.log("B.NocheCollection:host:",this); return this.app.get("fileServerHost"); }
 	// },
@@ -10,14 +13,13 @@ enyo.kind({
 	// }
 });
 
-
 /// File Model ////////////////////////////////////////////
 enyo.kind({
 	name: "mdlFile",
 	kind: enyo.Model,
 	// mergeKeys: ["day"],
 	readOnly: true,
-	attributes: {
+	// attributes: {
 		icon: function () {
 			var media = this.get("hasMedia");
 			if (media) {
@@ -26,7 +28,7 @@ enyo.kind({
 			}
 			return this.getIconSrc(this.get("ext"));
 		},
-		lastModified: function () { 
+		lastModified: function () {
 			return new Date(this.get("mtime"));
 		},
 		prettySize: function() {
@@ -35,7 +37,7 @@ enyo.kind({
 		prettyLastModified: function () {
 			var d = this.get("lastModified");
 			return this.formatDate(d);
-		}
+		// }
 	},
 	computed: {
 		icon: [{cached: true}, "ext"],
@@ -112,6 +114,9 @@ enyo.kind({
 	// kind: "enyo.Collection",
 	kind: "B.NocheCollection",
 	model: "mdlFile",
+	options: {
+		parse: true
+	},
 	// defaultSource: "noche",
 	// published: {
 		// host: function() { return this.app.get("fileServerHost"); }
@@ -136,29 +141,36 @@ enyo.kind({
 	name: "mdlDirectory",
 	kind: "enyo.Model",
 	readOnly: true,
+	options: {
+		parse: true
+	},
 	attributes: {
 		// key: "",
-		// key: function() {
-		// 	return this.get("host") + this.get("path");
-		// },
 		host: "",
 		basename: "",
 		nfo: "",
 		poster: "",
 		fanart: "",
 		videos: [],
-		path: "path",
-		name: function () { 
-			return this.get("name");
-		},
-		title: function () { 
-			var strDir = this.get("name");
-			return strDir === "/" ? "/Home" : strDir.toWordCase();
-		}
+		// path: "path",
+		name: 'whoKnows?'
+		// name: function () {
+		// 	return this.get("name");
+		// }
 	},
+		key: function() {
+			return this.get("host") + this.get("path");
+		},
+		title: function () {
+			var strDir = this.get("name") || 'weGoofedUp';
+			// debugger;
+			return strDir === "/" ? "/Home" : strDir.toWordCase();
+		},
 	computed: {
-		key: [{cached: true}, ["host", "path"]],
-		title: [{cached: true}, "name"]
+		// key: ['host', 'path'],
+		title: ['name']
+		// key: [{cached: true}, ["host", "path"]],
+		// title: [{cached: true}, "name"]
 	},
 	primaryKey: "key",
 	parse: function (data) {
@@ -221,6 +233,10 @@ enyo.kind({
 	// kind: "enyo.Collection",
 	kind: "B.NocheCollection",
 	model: "mdlDirectory",
+	options: {
+		parse: true
+	},
+	// source: "noche",
 	// defaultSource: "noche",
 	// published: {
 		// host: function() { return this.app.get("fileServerHost"); }
@@ -233,6 +249,7 @@ enyo.kind({
 		// the data comes back as an object with a property that is the
 		data.filesystem[0].app = this.app;
 		console.log("mdlFileSystem: B.NocheCollection:", this);
+		// debugger;
 		return data.filesystem;
 	}
 });

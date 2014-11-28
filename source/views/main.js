@@ -106,14 +106,14 @@ enyo.kind({
 		onOpen: "handleOpen"
 	},
 	bindings: [
-		{from: ".app.servers",			to: ".$.serverDataList.collection"},
-		{from: ".app.servers",			to: ".$.serverPicker.collection"},
-		{from: ".movieInfo.videoSrc",	to: ".$.player.src"},
-		{from: ".movieInfo.posterSrc",	to: ".$.player.poster"},
-		{from: ".movieInfo.posterSrc",	to: ".$.playerMediaInfo.posterSrc"},
-		{from: ".movieInfo.title",		to: ".$.playerHeader.title"},
-		{from: ".movieInfo.subtitle",	to: ".$.playerHeader.subTitle"},
-		{from: ".movieInfo.plot",		to: ".$.playerHeader.description"}
+		{from: "app.servers",			to: "$.serverDataList.collection"},
+		{from: "app.servers",			to: "$.serverPicker.collection"},
+		{from: "movieInfo.videoSrc",	to: "$.player.src"},
+		{from: "movieInfo.posterSrc",	to: "$.player.poster"},
+		{from: "movieInfo.posterSrc",	to: "$.playerMediaInfo.posterSrc"},
+		{from: "movieInfo.title",		to: "$.playerHeader.title"},
+		{from: "movieInfo.subtitle",	to: "$.playerHeader.subTitle"},
+		{from: "movieInfo.plot",		to: "$.playerHeader.description"}
 	],
 	create: function() {
 		this.inherited(arguments);
@@ -130,24 +130,27 @@ enyo.kind({
 
 	/**
 	 *
-	 * Try and make it so when you hit the back browser button, 
+	 * Try and make it so when you hit the back browser button,
 	 * or put in a different #, it just goes directly to that set of panes.
-	 * 
+	 *
 	 */
 
 	generatePanelsFromPath: function() {
 		// this.inherited(arguments);
-		
+
 		// Take our path array and generate some panels using it
-		var ps = this.createDirectoryPanels(this.app.get("locPathArray"));
-		this.$.panels.pushPanels(ps, null, {setIndex: -1});
-		
+		debugger;
+		var locPath = this.app.$.router.location();
+		var ps = this.createDirectoryPanels(this.app.getPathArray(locPath));
+		// var ps = this.createDirectoryPanels(this.app.get("locPathArray"));
+		this.$.panels.pushPanels(ps, null, {targetIndex: -1, transition: false});
+
 		// Manually fire the assign function, since we won't have a transition to rely on with only one panel.
 		if (this.$.panels.getPanels().length <= 1) {
 			// this.assignPanelContents(this.$.panels.getActive());
 			this.$.panels.getActive().doReady();
 		}
-		// console.log("Panel Create:", this, arrBread);
+		console.log("Panel Create:", this);
 	},
 	eventVars: function(inSender, inEvent) {
 		console.log(inEvent.type, "-> inSender:", inSender, "inEvent:",inEvent);

@@ -2,7 +2,7 @@ enyo.kind({
 	name: "mdlMovie",
 	kind: "enyo.Model",
 	readOnly: true,
-	attributes: {
+	// attributes: {
 		suptitle: function() {
 			// Just the part of the title BEFORE the possible :
 			var title = (this.get("title") || "");
@@ -23,7 +23,7 @@ enyo.kind({
 			}
 			// console.log("set subtitle from: %s; to %s;", this.get("title"), title);
 			return title;
-		}
+		// }
 	},
 	computed: {
 		suptitle: [{cached: true}, "title"],
@@ -36,7 +36,10 @@ enyo.kind({
 	name: "mdlMovieInfo",
 	kind: "enyo.Collection",
 	model: "mdlMovie",
-	defaultSource: "noche",
+	defaultSource: "NocheSource",
+	options: {
+		palse: true
+	},
 	published: {
 		host: function() { return this.app.get("fileServerHost"); }
 	},

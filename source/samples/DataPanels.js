@@ -1,9 +1,9 @@
 enyo.kind({
 	name: "B.samples.DataPanels",
 	classes: "moon enyo-fit enyo-unselectable",
-	attributes: {
-		panelList: {}
-	},
+	// attributes: {
+		panelList: {},
+	// },
 	components: [
 		{name: "panels", kind: "B.DataPanels", classes: "enyo-fit", pattern: "activity",
 		components: [

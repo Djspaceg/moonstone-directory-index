@@ -1,12 +1,12 @@
 enyo.kind({
 	name: "B.samples.models.MovieInfo",
 	classes: "moon enyo-fit enyo-unselectable",
-	attributes: {
+	// attributes: {
 		panelList: {},
-	},
+	// },
 	components: [
 		{name: "panels", kind: "moon.Panels", classes: "enyo-fit", pattern: "activity", //style: "z-index: 1000;",
-			components: [],
+			components: []
 		}
 	],
 	create: function() {

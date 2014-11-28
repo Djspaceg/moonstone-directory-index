@@ -12,11 +12,11 @@ enyo.kind({
 	},
 	headerComponents: [
 		{classes: "toolbar", components: [
-			{kind: "moon.IconButton", name: "refreshButton", icon: "drawer", classes: "icon-refresh", ontap: "reload"}
+			{kind: "moon.IconButton", name: "refreshButton", icon: "&#10227;", classes: "icon-refresh", ontap: "reload"}
 		]},
 		{kind:"moon.TooltipDecorator", components: [
 			{kind:"moon.Tooltip", position:"above", content:"Test Dynamic Lists"},
-		
+
 			//* List actions with default width
 			{kind: "moon.ListActions", name:"listActions", icon:"drawer", listActions: [
 				{action:"typeFilter", components: [
@@ -75,11 +75,15 @@ enyo.kind({
 		// console.log("Running Reload:", inEvent);
 		// var path = this.get("path");
 		var modelKey = this.get("modelKey");
-
-		var m = enyo.store.findLocal("mdlDirectory", { key: modelKey });
-		if (m) {
+		var m = enyo.store.find(mdlDirectory, function (el, index, arr) {
+			return el.get(el.primaryKey) == modelKey;
+		});
+		console.log("reload find results:", m);
+		if (m && m.length > 0) {
 			// debugger;
-			m.destroy();
+			for (var i = 0; i < m.length; i++) {
+				m[i].destroy();
+			}
 			if (this.$[modelKey]) {
 				this.$[modelKey].destroy();
 			}
@@ -115,10 +119,10 @@ enyo.kind({
 		if (!inOptions.fail) {
 			inOptions.fail = function() {};
 		}
-
 		// console.log("storeFetch:inOptions.path:", inOptions.path);
 		var modelKey = inOptions.path ? this.generateModelKey(inOptions.path) : this.get("modelKey"),
-			m = enyo.store.findLocal(inOptions.storeModel, { key: modelKey });
+			m = enyo.store.find(inOptions.storeModel, function (key) { console.log('find fun', arguments); return key == modelKey });
+			// m = enyo.store.find(inOptions.storeModel, { key: modelKey });
 		console.log("storeFetch:modelKey:", modelKey);
 		if (m && (m.euid || m.length)) {
 			// console.log("Path found in store:", inOptions.path, m);
@@ -144,18 +148,17 @@ enyo.kind({
 			// }
 		// });
 		}
-		console.log("Model doesn't exist yet. Creating for %s...", inOptions.path);
+		console.log('Model doesn\'t exist yet. Creating for "%s" ...', inOptions.path);
 		m.fetch({
 			success: enyo.bind(this, function(inObj,inBindOptions,inData) {
-				// console.log("Model fetched successfully. Args:", inData, m.at(0));
+				console.log("Model fetched successfully. Args:", inData, m.at(0));
 				inOptions.success.call(this, m.at(0) || inData);
 			}),
 			fail: enyo.bind(this, function(inObj,inBindOptions,inData) {
 				// console.log("Model fetch FAILED. Args:", inObj,inBindOptions,inData);
 				inOptions.fail.apply(this, arguments);
 				// mi.destroy();
-			}),
-			strategy: "merge"
+			})
 		});
 		return true;
 	},
@@ -171,8 +174,8 @@ enyo.kind({
 		// }
 		this.storeFetch({
 			path: path,
-			storeModel: "mdlDirectory",
-			componentModel: "mdlFileSystem",
+			storeModel: mdlDirectory,
+			componentModel: mdlFileSystem,
 			success: function(inModel) {
 				var di,
 					bitMediaFolder = inModel.get("hasMedia");
@@ -180,8 +183,8 @@ enyo.kind({
 				if (bitMediaFolder) {
 					this.storeFetch({
 						path: path + (inModel.get("nfo") || "fail.noNfoFileExists"),
-						storeModel: "mdlMovie",
-						componentModel: "mdlMovieInfo",
+						storeModel: mdlMovie,
+						componentModel: mdlMovieInfo,
 						success: function(inMovieModel) {
 							console.log("Fetch of %s Successful.", path, inModel, "inMovieModel", inMovieModel);
 							this.$.refreshButton.set("showing", false);

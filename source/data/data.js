@@ -1,8 +1,10 @@
 /// Noche Server Model ////////////////////////////////////
 enyo.kind({
-	name: "noche.Source",
+	name: 'B.NocheSource',
+	// name: "B.NocheSource",
 	kind: enyo.JsonpSource,
-	defaultSource: "jsonp",
+	// defaultSource: "jsonp",
+	// source: "jsonp",
 	// url: "http://%./json/%.",
 	urlRoot: "http://%./json%.",
 	buildUrl: function(rec, opts) {
@@ -30,29 +32,32 @@ enyo.kind({
  */
 
 enyo.kind({
-	name: "B.Server",
+	name: 'B.Server',
 	kind: enyo.Model,
-	attributes: {
-		title: "",
-		protocol: "http",
-		hostname: "",
-		port: "",
-		basePath: "/json",
+	// attributes: {
+		title: '',
+		protocol: 'http',
+		hostname: '',
+		port: '',
+		basePath: '/json',
 		host: function() {
-			// console.log("server.host:", this);
-			var port = this.get("port") ? ":" + this.get("port") : "";
-			return this.get("hostname") + port;
+			// console.log('server.host:', this);
+			var port = this.get('port') ? ':' + this.get('port') : '';
+			return this.get('hostname') + port;
 		},
 		url: function() {
-			// console.log("server.url:", this);
-			return this.get("protocol") + "://" + this.get("host") + this.get("basePath");
-		}
+			// console.log('server.url:', this);
+			return this.get('protocol') + '://' + this.get('host') + this.get('basePath');
+		// }
 	},
 	computed: {
-		host: [{cached: true}, ["hostname", "port"]],
-		url: [{cached: true}, ["protocol", "host", "basePath"]]
+		host: ['hostname', 'port'],
+		url: ['protocol', 'host', 'basePath']
+		// host: [{cached: true}, ['hostname', 'port']],
+		// url: [{cached: true}, ['protocol', 'host', 'basePath']]
 	}
 });
+
 
 // enyo.store.addSources({noche: "noche.Source"});
 

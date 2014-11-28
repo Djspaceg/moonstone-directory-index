@@ -1,5 +1,5 @@
-@import-once "../../lib/moonstone/css/moonstone-variables-dark.less";
-@import-once "../../lib/moonstone/css/moonstone-variables.less";
+@import "../../lib/moonstone/css/moonstone-variables-dark.less";
+@import "../../lib/moonstone/css/moonstone-variables.less";
 
 .enyo-data-list .moon-item {
 	border: @moon-button-border-width solid transparent;
@@ -39,13 +39,10 @@
 	}
 }
 
-.moon-icon.small.icon-refresh {
-	font-size: 160%;
-	line-height: 1.25em;
+.moon-icon.small.icon-refresh div {
+	font-size: 140%;
 	text-align: right;
-	&:after {
-		content: "\27F3";
-	}
+	padding-right: 0.5ex;
 }
 
 .directory-index-row {
