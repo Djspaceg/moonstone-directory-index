@@ -1,3 +1,5 @@
 enyo.depends(
-	"data.js"
+	"data.js",
+	"mdlFileSystem.js",
+	"mdlMovieInfo.js"
 );
