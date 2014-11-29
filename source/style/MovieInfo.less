@@ -20,11 +20,12 @@
 	.movie-info-header {
 		border-color: transparent;
 		border-bottom-color: white;
+		border-top-color: transparent;
 	}
 	.moon-list-actions-drawer-client {
-		background-color: rgba(136, 136, 136, 0.7);
-		border-top-left-radius: 38px;
-		border-top-right-radius: 38px;
+		background-color: rgba(136, 136, 136, 0.9);
+		border-radius: 38px;
+
 		.moon-popup-close {
 			// opacity: 0.8;
 			background-color: transparent;
@@ -100,6 +101,12 @@
 		.moon-icon-button {
 			margin: 0;
 		}
+		.moon-icon-play {
+			line-height: 100px;
+			height: 90px;
+			width: 90px;
+			font-size: 250px;
+		}
 	}
 	.movie-info-year {
 		right: 0;
@@ -116,12 +123,4 @@
 	}
 }
 
-.moon-icon-play {
-	line-height: 100px;
-	height: 90px;
-	width: 90px;
-}
-.moon-icon-play::after {
-	content: "\25BA";
-}
 

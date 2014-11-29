@@ -1,55 +1,45 @@
-enyo.kind({
-	name: "mdlMovie",
-	kind: "enyo.Model",
-	readOnly: true,
-	// attributes: {
-		suptitle: function() {
-			// Just the part of the title BEFORE the possible :
-			var title = (this.get("title") || "");
-			if (title.match(/:/)) {
-				title = title.replace(/^(.*)\s*:.*$/, "$1");
-			}
-			// console.log("set suptitle from: %s; to %s;", this.get("title"), title);
-			return title;
-		},
-		subtitle: function() {
-			// Just the part of the title AFTER the possible :
-			var title = (this.get("title") || "");
-			if (title.match(/:/)) {
-				title = title.replace(/^.*:\s*(.*)$/, "$1");
-			}
-			else {
-				return "";
-			}
-			// console.log("set subtitle from: %s; to %s;", this.get("title"), title);
-			return title;
-		// }
-	},
-	computed: {
-		suptitle: [{cached: true}, "title"],
-		subtitle: [{cached: true}, "title"]
-	},
-	primaryKey: "path"
-});
+(function (enyo, scope) {
 
-enyo.kind({
-	name: "mdlMovieInfo",
-	kind: "enyo.Collection",
-	model: "mdlMovie",
-	defaultSource: "NocheSource",
-	options: {
-		palse: true
-	},
-	published: {
-		host: function() { return this.app.get("fileServerHost"); }
-	},
-	computed: {
-		host: [{cached: true}]
-	},
-	parse: function (data) {
-		if (data.movie) {
-			data.movie.path = this.get("path");
+	enyo.kind({
+		name: 'mdlMovie',
+		kind: 'enyo.Model',
+		readOnly: true,
+		options: {
+			parse: true
+		},
+		primaryKey: 'path',
+		parse: function (data) {
+			this.prepareTitles(data);
+			return data;
+		},
+		prepareTitles: function (data) {
+			var title = (data.title || ''),
+				suptitle = '',
+				subtitle = '';
+
+			if (title.match(/:/)) {
+				suptitle = title.replace(/^(.*)\s*:.*$/, '$1');
+				subtitle = title.replace(/^.*:\s*(.*)$/, '$1');
+			}
+			data.suptitle = suptitle;
+			data.subtitle = subtitle;
 		}
-		return data.movie;
-	}
-});
+	});
+
+	enyo.kind({
+		name: 'mdlMovieInfo',
+		kind: 'B.NocheCollection',
+		model: 'mdlMovie',
+		options: {
+			parse: true
+		},
+		parse: function (data) {
+			if (data.movie) {
+				data.movie.path = this.get('path');
+				data.movie.host = this.app.get('fileServerHost');
+			}
+			return data.movie;
+		}
+	});
+
+})(enyo, this);

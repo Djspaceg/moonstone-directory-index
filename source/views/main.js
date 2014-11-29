@@ -139,7 +139,6 @@ enyo.kind({
 		// this.inherited(arguments);
 
 		// Take our path array and generate some panels using it
-		debugger;
 		var locPath = this.app.$.router.location();
 		var ps = this.createDirectoryPanels(this.app.getPathArray(locPath));
 		// var ps = this.createDirectoryPanels(this.app.get("locPathArray"));
