@@ -1,36 +1,85 @@
-/*
-+    App-specific LESS/CSS would go here, but to make your
-+    application easier to maintain, you should try to
-+    minimize the use of custom CSS.
-+*/
+@import "../../lib/moonstone/css/moonstone-variables-dark.less";
+@import "../../lib/moonstone/css/moonstone-variables.less";
 
-.main-view {
+.enyo-data-list .moon-item {
+	border: @moon-button-border-width solid transparent;
 }
-
-html, body {
-	background-color: black;
-}
-.moon-icon.small {
-	background-position: center center;
-	background-size: cover;
+.enyo-data-list .selected .moon-item {
+	border: @moon-button-border-width solid @moon-spotlight-border-color;
 }
 
+.moon-video-transport-slider {
+	height: 10px;
+	background-color: rgba(0, 0, 0, 0.2);
 
-.directory-index-row .moon-marquee {
-	vertical-align: text-top;
+	.moon-video-transport-slider-bg-bar {
+		opacity: 0.4;
+		border-radius: 5px;
+	}
+	.moon-video-transport-slider-bar-bar {
+		opacity: 0.8;
+		border-radius: 5px;
+	}
+	.moon-video-transport-slider-taparea {
+		height: 80px;
+	}
+	.moon-video-transport-slider-knob {
+		top: 5px;
+	}
 }
-/*.directory-index-row div {
-	position: relative;
-	top: 0;
+
+.picture-viewer {
+	// background: #4B5259 linear-gradient(to bottom right, #4B5259 0%, #0C0F11 100%);
+	background: #52001F linear-gradient(to top, #52001F 0%, #0C0F11 100%);
 }
-*/
-.directory-index-row div+div {
-	display: inline-block;
-	font-family: "MuseoSans Light";
+.moon-image.media-info-player-poster {
+	margin-top: 20px;
+	> .enyo-image {
+		width: 150px;
+	}
 }
-.directory-index-row .row-title {
-	font-family: "MuseoSans Medium";
-	width: 45%;
+
+.moon-icon.small.icon-refresh div {
+	font-size: 140%;
+	text-align: right;
+	padding-right: 0.5ex;
 }
-.directory-index-row .row-size {	width: 10%;	margin: 0 0.5%;	text-align: right;}
-.directory-index-row .row-date {	width: 35%;	margin: 0 0.5%;	text-align: right; }
+
+.directory-index-row {
+	font-family: "MuseoSans 500";
+
+	.moon-icon, {
+		height: 45px;
+		margin-top: 0;
+		margin-bottom: 0;
+		&.small {
+			height: 32px;
+		}
+	}
+	.moon-icon {
+		opacity: 0.61;
+	}
+	&.spotlight .moon-icon {
+		opacity: 1;
+	}
+	.moon-icon,
+	.moon-icon.small {
+		background-position: center center;
+		background-size: contain;
+	}
+	.moon-marquee {
+		vertical-align: text-top;
+	}
+	.row-title,
+	.row-size,
+	.row-date-mod {
+		padding-left: 1ex;
+		padding-right: 1ex;
+		box-sizing: border-box;
+	}
+	.row-size,
+	.row-date-mod {
+		font-family: "MuseoSans 100";
+		text-align: right;
+	}
+}

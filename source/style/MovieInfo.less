@@ -1,0 +1,126 @@
+@import "../../lib/moonstone/css/moonstone-variables-dark.less";
+@import "../../lib/moonstone/css/moonstone-variables.less";
+
+.movie-info {
+	@movie-info-pane-padding: 30px;
+	@movie-info-text-padding: 10px;
+	@movie-info-poster-width: 360px;
+	@movie-info-poster-height: 540px;
+
+	background: black linear-gradient(to bottom right, #4B5259 0%, #0C0F11 100%) no-repeat center center;
+	background-size: cover;
+
+	.moon-header {
+		position: absolute;
+		bottom: 210px;
+		left: (@movie-info-pane-padding + @movie-info-poster-width + 20px);
+		right: @movie-info-pane-padding;
+		z-index: 2;
+	}
+	.movie-info-header {
+		border-color: transparent;
+		border-bottom-color: white;
+		border-top-color: transparent;
+	}
+	.moon-list-actions-drawer-client {
+		background-color: rgba(136, 136, 136, 0.9);
+		border-radius: 38px;
+
+		.moon-popup-close {
+			// opacity: 0.8;
+			background-color: transparent;
+			&.spotlight {
+				background-color: @moon-spotlight-background-color;
+			}
+		}
+		.moon-list-actions-client-container {
+			background-color: transparent;
+		}
+	}
+
+	.moon-panel-body {
+		height: 100% !important;
+	}
+	.moon-header-title-above,
+	.moon-header-title,
+	.moon-header-title-below,
+	.moon-header-sub-title-below,
+	.movie-info-year,
+	.movie-info-plot,
+	.moon-icon-play {
+		color: white;
+		padding: 0 @movie-info-text-padding;
+		text-shadow: 0 5px 15px rgba(0, 0, 0, 1), 0 5px 15px rgba(0, 0, 0, 0.5);
+	}
+	.moon-header-title-below {
+		padding-right: 13ex;
+	}
+	.moon-header-sub-title-below {
+		padding-right: 6ex;
+	}
+	.movie-info-poster,
+	.movie-info-plot-frame {
+		position: absolute;
+		bottom: @movie-info-pane-padding;
+	}
+	.movie-info-poster {
+		left: @movie-info-pane-padding;
+		top: initial;
+		right: initial;
+		border-radius: 1.1em;
+		height: @movie-info-poster-height;
+		width: @movie-info-poster-width;
+		box-sizing: content-box;
+
+		&>img {
+			height: @movie-info-poster-height;
+			width: @movie-info-poster-width;
+			border-radius: 1em;
+			box-shadow: 0 5px 45px rgba(0, 0, 0, 0.5);
+		}
+		&.moon-image.has-children {
+			position: absolute;
+			overflow: visible;
+			.moon-icon {
+				padding: 0;
+				margin: 0;
+			}
+		}
+		&.moon-image.show-on-spotlight.spotlight .moon-image-client {
+			display: block;
+		}
+		.moon-image-client {
+			position: absolute;
+			margin-top: -50px;
+			margin-left: -50px;
+			top: 50%;
+			left: 50%;
+			right: 0;
+			background-color: transparent;
+		}
+		.moon-icon-button {
+			margin: 0;
+		}
+		.moon-icon-play {
+			line-height: 100px;
+			height: 90px;
+			width: 90px;
+			font-size: 250px;
+		}
+	}
+	.movie-info-year {
+		right: 0;
+		position: absolute;
+		bottom: 256px;
+		margin-right: 70px + @movie-info-pane-padding + @movie-info-text-padding;
+	}
+	.movie-info-plot-frame {
+		left: (@movie-info-pane-padding + @movie-info-poster-width + 20px);
+		right: @movie-info-pane-padding;
+		max-height: 150px;
+		height: 150px;
+		margin: 0 @movie-info-text-padding;
+	}
+}
+
+

@@ -1,6 +1,10 @@
 enyo.depends(
 	"controllers.js",
+	"Router.js",
+	"File.js",
+	"DataPanels.js",
+	"MediaInfo.js",
 	"DirectoryIndex.js",
-	"DirectoryIndexRow.js",
-	"LinkButton.js"
+	"DirectoryPanel.js",
+	"MovieInfo.js"
 );
