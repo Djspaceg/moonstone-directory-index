@@ -1,3 +1,28 @@
+var
+	kind = require('enyo/kind'),
+	util = require('enyo/utils'),
+	Control = require('enyo/Control'),
+	Img = require('enyo/Image');
+
+var
+	Marquee = require('moonstone/Marquee'),
+	MarqueeSupport = Marquee.Support,
+	MarqueeItem = Marquee.Item;
+
+//* @public
+
+/**
+    _moon.ChannelInfoBadge_ is a simple kind used to display a badge
+    containing channel info. It is the default kind for components added to
+    [moon.ChannelInfo](#moon.ChannelInfo).
+*/
+var MediaInfoBadge = kind({
+	name: 'B.MediaInfoBadge',
+	kind: Control,
+	//* @protected
+	classes: 'moon-video-badge-text moon-video-player-info-icon'
+});
+
 /**
 	_moon.ChannelInfo_ is a control that displays channel information.  It is
 	designed to be used within the _infoComponents_ block of a
@@ -6,42 +31,42 @@
 	Example:
 
 		{
-			kind: "moon.ChannelInfo",
+			kind: 'moon.ChannelInfo',
 			no: 36,
-			name: "AMC",
+			name: 'AMC',
 			components: [
-				{content: "3D"},
-				{content: "Live"},					
-				{content: "REC 08:22", classes: "moon-video-player-info-redicon"}
+				{content: '3D'},
+				{content: 'Live'},
+				{content: 'REC 08:22', classes: 'moon-video-player-info-redicon'}
 			]
 		}
 */
-enyo.kind({
-	name: "B.MediaInfo",
-	kind: "enyo.Control",
+module.exports = kind({
+	name: 'B.MediaInfo',
+	kind: Control,
 	//* @protected
-	classes: "moon-channelinfo media-info",
-	mixins: ["moon.MarqueeSupport"],
+	classes: 'moon-channelinfo media-info',
+	mixins: [MarqueeSupport],
 	marqueeOnSpotlight: false,
 	marqueeOnHover: true,
 	//* @public
 	published: {
 		//* The channel number
-		posterSrc: "",
+		posterSrc: '',
 		//* The name of the channel
-		channelName: ""
+		channelName: ''
 	},
 	//* @protected
-	defaultKind: "B.MediaInfoBadge",
+	defaultKind: MediaInfoBadge,
 	components: [
-		{name: "playerPoster", kind: "moon.Image", src: "", classes: "media-info-player-poster"},
-		{kind: "enyo.Control", name: "client", classes: "moon-video-player-channel-info-badges"}
+		{name: 'playerPoster', kind: Img, src: '', classes: 'media-info-player-poster'},
+		{kind: 'enyo.Control', name: 'client', classes: 'moon-video-player-channel-info-badges'}
 	],
 	bindings: [
-		{from: ".posterSrc",		to: ".$.playerPoster.src"}
+		{from: 'posterSrc',		to: '$.playerPoster.src'}
 	],
 	addBadge: function(inControl) {
-		if (! enyo.isArray(inControl)) {
+		if (!util.isArray(inControl)) {
 			inControl = [ inControl ];
 		}
 		this.createComponents( inControl );
@@ -55,18 +80,4 @@ enyo.kind({
 		// this.$.client.destroyComponents();
 		// this.$.client.render();
 	}
-});
-
-//* @public
-
-/**
-    _moon.ChannelInfoBadge_ is a simple kind used to display a badge
-    containing channel info. It is the default kind for components added to
-    [moon.ChannelInfo](#moon.ChannelInfo).
-*/
-enyo.kind({
-	name: "B.MediaInfoBadge",
-	kind: "enyo.Control",
-	//* @protected
-	classes: "moon-video-badge-text moon-video-player-info-icon"
 });

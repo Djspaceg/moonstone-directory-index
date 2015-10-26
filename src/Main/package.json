@@ -1,0 +1,6 @@
+{
+	"main": "Main.js",
+	"styles": [
+		"Main.less"
+	]
+}

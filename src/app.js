@@ -6,11 +6,20 @@ String.prototype.toWordCase = function() {
 	return this.replace(/\w\S*/g, function(txt) {return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
 
-(function (enyo, scope) {
+var
+	kind = require('enyo/kind'),
+	Application = require('enyo/Application'),
+	Collection = require('enyo/Collection'),
+	util = require('enyo/utils'),
+	DataRepeater = require('enyo/DataRepeater'),
+	Router = require('enyo/Router');
 
-	enyo.kind({
+var
+	Settings = require('../conf/settings');
+
+module.exports = kind({
 		name: 'B.Application',
-		kind: 'enyo.Application',
+		kind: Application,
 		view: 'B.MainView',
 		components: [
 			{name: 'router', kind: 'B.Router'}
@@ -49,7 +58,7 @@ String.prototype.toWordCase = function() {
 		],
 		// Load in our settings
 		mixins: [
-			'enyo.Settings.Main'
+			Settings.Main
 		],
 		handlePathChange: function (sender, ev) {
 			console.log('handlePathChange:', ev);
@@ -97,7 +106,7 @@ String.prototype.toWordCase = function() {
 			}
 		},
 		prepareServersCollection: function () {
-			this.servers = new enyo.Collection(this.fileServers, {model: 'B.Server'});
+			this.servers = new Collection(this.fileServers, {model: 'B.Server'});
 			this.set('server', this.servers.at(0));
 		},
 		addSource: function () {
@@ -151,9 +160,3 @@ String.prototype.toWordCase = function() {
 			};
 		})
 	});
-
-	enyo.ready(function () {
-		new B.Application({name: 'directoryIndex'});
-	});
-
-})(enyo, this);

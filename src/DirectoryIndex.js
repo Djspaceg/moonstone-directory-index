@@ -1,5 +1,11 @@
 /// DataList, B.DirectoryIndex ///
-enyo.kind({
+var
+	kind = require('enyo/kind');
+
+var
+	File = require('./File');
+
+module.exports = kind({
 	name: 'B.DirectoryIndex',
 	kind: 'moon.DataList',
 	headerType: 'medium',
@@ -9,7 +15,7 @@ enyo.kind({
 		path: '/'
 	},
 	components: [
-		{kind: 'B.File',
+		{kind: File,
 			bindings: [
 				{from: 'model.path', to: 'path'},
 				{from: 'model.isDir', to: 'isDir'},

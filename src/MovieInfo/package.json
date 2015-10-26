@@ -1,0 +1,6 @@
+{
+	"main": "MovieInfo.js",
+	"styles": [
+		"MovieInfo.less"
+	]
+}

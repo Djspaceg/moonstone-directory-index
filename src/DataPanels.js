@@ -2,23 +2,27 @@
 // DataPanels
 //
 // Panels that mymic data repeater...
-// so, the collection assigned to "panels" will automatically 
+// so, the collection assigned to 'panels' will automatically
 // push/pop panels when a new item or items are added/removed
 // from the collection.
-// 
-// Each member of the collection will have all the necessary 
+//
+// Each member of the collection will have all the necessary
 // models and metadata to populate any/all fields of the panel
 // including the models.
-// 
-enyo.kind({
-	name: "B.DataPanels",
-	kind: "enyo.DataRepeater",
+//
+var
+	kind = require('enyo/kind'),
+	DataRepeater = require('enyo/DataRepeater');
+
+module.exports = kind({
+	name: 'B.DataPanels',
+	kind: DataRepeater,
 	// mixins: [moon.Panels],
 	components: [],
 	// componentsTemplate: [],
 	create: function() {
 		this.inherited(arguments);
-		console.log("At least we created DataPanels...");
+		console.log('At least we created DataPanels...');
 		// this.prepareTemplate();
 	},
 	/**
@@ -26,12 +30,12 @@ enyo.kind({
 	*/
 	modelsAdded: function (c, e, props) {
 		this.inherited(arguments);
-		console.log("modelsAdded:c:", c, e, props);
+		console.log('modelsAdded:c:', c, e, props);
 		// if (c === this.collection && this.$.scroller.canGenerate) {
-		// 	if (this.get("absoluteShowing")) {
+		// 	if (this.get('absoluteShowing')) {
 		// 		this.delegate.modelsAdded(this, props);
 		// 	} else {
-		// 		this._addToShowingQueue("refresh", function () {
+		// 		this._addToShowingQueue('refresh', function () {
 		// 			this.refresh();
 		// 		});
 		// 	}
@@ -42,12 +46,12 @@ enyo.kind({
 	*/
 	modelsRemoved: function (c, e, props) {
 		this.inherited(arguments);
-		console.log("modelsRemoved:c:", c, e, props);
+		console.log('modelsRemoved:c:', c, e, props);
 		// if (c === this.collection && this.$.scroller.canGenerate) {
-		// 	if (this.get("absoluteShowing")) {
+		// 	if (this.get('absoluteShowing')) {
 		// 		this.delegate.modelsRemoved(this, props);
 		// 	} else {
-		// 		this._addToShowingQueue("refresh", function () {
+		// 		this._addToShowingQueue('refresh', function () {
 		// 			this.refresh();
 		// 		});
 		// 	}

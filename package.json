@@ -1,0 +1,10 @@
+{
+	"name":"moonstone-directory-index",
+	"assets":[],
+	"devAssets":[],
+	"styles":[
+		"css/*.less"
+	],
+	"main":"index.js",
+	"moduleDir":"src"
+}
