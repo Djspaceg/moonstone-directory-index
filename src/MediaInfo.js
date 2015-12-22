@@ -1,13 +1,14 @@
 var
 	kind = require('enyo/kind'),
 	util = require('enyo/utils'),
-	Control = require('enyo/Control'),
+	// Control = require('enyo/Control'),
 	Img = require('enyo/Image');
 
 var
-	Marquee = require('moonstone/Marquee'),
-	MarqueeSupport = Marquee.Support,
-	MarqueeItem = Marquee.Item;
+	ChannelInfo = require('moonstone-extra/ChannelInfo');
+	// Marquee = require('moonstone/Marquee'),
+	// MarqueeSupport = Marquee.Support,
+	// MarqueeItem = Marquee.Item;
 
 //* @public
 
@@ -16,12 +17,12 @@ var
     containing channel info. It is the default kind for components added to
     [moon.ChannelInfo](#moon.ChannelInfo).
 */
-var MediaInfoBadge = kind({
-	name: 'B.MediaInfoBadge',
-	kind: Control,
-	//* @protected
-	classes: 'moon-video-badge-text moon-video-player-info-icon'
-});
+// var MediaInfoBadge = kind({
+// 	name: 'B.MediaInfoBadge',
+// 	kind: Control,
+// 	//* @protected
+// 	classes: 'moon-video-badge-text moon-video-player-info-icon'
+// });
 
 /**
 	_moon.ChannelInfo_ is a control that displays channel information.  It is
@@ -43,28 +44,32 @@ var MediaInfoBadge = kind({
 */
 module.exports = kind({
 	name: 'B.MediaInfo',
-	kind: Control,
+	kind: ChannelInfo,
 	//* @protected
-	classes: 'moon-channelinfo media-info',
-	mixins: [MarqueeSupport],
-	marqueeOnSpotlight: false,
-	marqueeOnHover: true,
+	classes: 'media-info',
+	// mixins: [MarqueeSupport],
+	// marqueeOnSpotlight: false,
+	// marqueeOnHover: true,
 	//* @public
 	published: {
 		//* The channel number
-		posterSrc: '',
+		posterSrc: ''
 		//* The name of the channel
-		channelName: ''
+		// channelName: ''
 	},
 	//* @protected
-	defaultKind: MediaInfoBadge,
-	components: [
-		{name: 'playerPoster', kind: Img, src: '', classes: 'media-info-player-poster'},
-		{kind: 'enyo.Control', name: 'client', classes: 'moon-video-player-channel-info-badges'}
+	// defaultKind: MediaInfoBadge,
+	mediaTools: [
+		{name: 'playerPoster', kind: Img, src: '', classes: 'media-info-player-poster'}
+		// {name: 'client', classes: 'moon-video-player-channel-info-badges'}
 	],
 	bindings: [
 		{from: 'posterSrc',		to: '$.playerPoster.src'}
 	],
+	initComponents: function () {
+		this.createComponents(this.mediaTools, {isChrome: true});
+		ChannelInfo.prototype.initComponents.apply(this, arguments);
+	},
 	addBadge: function(inControl) {
 		if (!util.isArray(inControl)) {
 			inControl = [ inControl ];

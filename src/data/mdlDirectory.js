@@ -46,7 +46,7 @@ module.exports = kind({
 				nfo: /\.nfo$/i,
 				poster: /(\.tbn|-poster\.(jpg|png))$/i,
 				fanart: /-fanart\.(jpg|png)$/i,
-				videos: /\.(mp4|m4v|avi|mov)$/i
+				videos: /\.(mkv|mp4|m4v|avi|mov)$/i
 			},
 			outData = {
 				basename: '',

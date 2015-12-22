@@ -1,0 +1,6 @@
+{
+	"main": "DirectoryList.js",
+	"styles": [
+		"DirectoryList.less"
+	]
+}

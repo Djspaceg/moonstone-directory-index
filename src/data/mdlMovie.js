@@ -11,12 +11,12 @@ module.exports = kind({
 	},
 	primaryKey: 'path',
 	parse: function (data) {
-		this.prepareTitles(data);
+		data = this.prepareTitles(data);
 		return data;
 	},
 	prepareTitles: function (data) {
 		var title = (data.title || ''),
-			suptitle = '',
+			suptitle = title,
 			subtitle = '';
 
 		if (title.match(/:/)) {
@@ -25,5 +25,6 @@ module.exports = kind({
 		}
 		data.suptitle = suptitle;
 		data.subtitle = subtitle;
+		return data;
 	}
 });

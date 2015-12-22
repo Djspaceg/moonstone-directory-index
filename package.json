@@ -1,9 +1,13 @@
 {
 	"name":"moonstone-directory-index",
-	"assets":[],
 	"devAssets":[],
 	"styles":[
 		"css/*.less"
+	],
+	"assets":[
+		"assets/favicon.ico",
+		"assets/**/*.png",
+		"resources/**/*.*"
 	],
 	"main":"index.js",
 	"moduleDir":"src"

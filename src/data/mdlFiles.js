@@ -3,12 +3,13 @@ var
 	kind = require('enyo/kind');
 
 var
-	NocheCollection = require('./NocheCollection');
+	NocheCollection = require('./NocheCollection'),
+	mdlFile = require('./mdlFile');
 
 module.exports = kind({
 	name: 'mdlFiles',
 	kind: NocheCollection,
-	model: 'mdlFile',
+	model: mdlFile,
 	options: {
 		parse: true
 	},

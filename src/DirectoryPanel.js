@@ -1,6 +1,7 @@
 var
 	kind = require('enyo/kind'),
 	util = require('enyo/utils'),
+	Store = require('enyo/Store'),
 	Collection = require('enyo/Collection'),
 	DataRepeater = require('enyo/DataRepeater');
 
@@ -12,27 +13,40 @@ var
 	ToggleItem = require('moonstone/ToggleItem'),
 	TooltipDecorator = require('moonstone/TooltipDecorator'),
 	Tooltip = require('moonstone/Tooltip'),
+	Slider = require('moonstone/Slider'),
+	SimplePicker = require('moonstone/SimplePicker'),
 	Panel = require('moonstone-extra/Panel');
 
 var
-	mdlDirectory = require('./mdlDirectory'),
-	mdlFileSystem = require('./mdlFileSystem'),
-	mdlMovieInfo = require('./mdlMovieInfo'),
-	mdlMovie = require('./mdlMovie');
+	mdlDirectory = require('./data/mdlDirectory'),
+	mdlFileSystem = require('./data/mdlFileSystem'),
+	mdlMovieInfo = require('./data/mdlMovieInfo'),
+	mdlMovie = require('./data/mdlMovie'),
+	MovieInfoParasite = require('./MovieInfo');
+var
+	// DirectoryGrid = require('./DirectoryGrid'),
+	DirectoryList = require('./DirectoryList');
 
 module.exports = kind({
 	name: 'B.DirectoryPanel',
-	kind: 'moon.Panel',
-	classes: 'moon-7h',
-	smallHeader: true,
+	kind: Panel,
+	headerType: 'medium',
 	title: 'Loading...',
 	path: null,
 	directoryLoaded: false,
 	published: {
 		modelKey: '',
-		backgroundSrc: null
+		backgroundSrc: null,
+		viewType: 'list',
+		gridSize: 180
 	},
 	headerComponents: [
+		{kind: SimplePicker, onChange: 'handleViewTypeChange', components: [
+			{content: 'List', active: true},
+			{content: 'Grid'}
+		]},
+		// {name: 'gridSizer', kind: Slider, classes: 'small', showPercentage: false, value: 6, min: 4, max: 12, onChanging: 'gridSizeSliderChanging', onChange: 'gridSizeSliderChanged'},
+		{name: 'gridSizer', kind: Slider, classes: 'small', showPercentage: false, value: 180, min: 100, max: 360, onChanging: 'gridSizeSliderChanging', onChange: 'gridSizeSliderChanged'},
 		{classes: 'toolbar', components: [
 			{kind: IconButton, name: 'refreshButton', icon: '&#10227;', classes: 'icon-refresh', ontap: 'reload'}
 		]},
@@ -44,16 +58,46 @@ module.exports = kind({
 				{action: 'typeFilter', components: [
 					{kind: Divider, content: 'Filter Types'},
 					{kind: DataRepeater, containerOptions: {kind: Scroller, classes: 'enyo-fill'}, name: 'repeater', fit: true, components: [
-						{kind: ToggleItem, bindings: [{from:'.model.name', to:'.content'}]}
+						{kind: ToggleItem, bindings: [{from:'model.name', to:'content'}]}
 					]}
 				]}
 			]}
 		]}
 	],
+	// listComponent: {
+	// 	name: 'directory',
+	// 	kind: DirectoryList
+	// },
+	// gridComponent: {
+	// 	name: 'directory',
+	// 	kind: DirectoryGrid,
+	// 	fit: true,
+	// 	spacing: 20,
+	// 	minWidth: 180,
+	// 	minHeight: 270,
+	// 	scrollerOptions: {
+	// 		kind: Scroller,
+	// 		vertical: 'scroll',
+	// 		horizontal: 'hidden',
+	// 		spotlightPagingControls: true
+	// 	}//, components: [
+	// 	// 	{ kind: GridSampleItem }
+	// 	// ]
+	// },
+	components: [
+		{name: 'directory', kind: DirectoryList, itemType: 'list'}
+	],
+	// components: [
+	// 	{name: 'directory', kind: DirectoryList, path: ''}
+	// ],
 	bindings: [
 		{from: '$.movieInfo.title', to: 'title'},
 		{from: '$.movieInfo.subtitle', to: 'titleBelow'},
-		{from: '$.movieInfo.tagline', to: 'subTitleBelow'}
+		{from: '$.movieInfo.tagline', to: 'subTitleBelow'},
+		{from: 'directoryModel', to: 'directory.model'},
+		{from: 'directoryModel.path', to: 'directory.path'},
+		{from: 'directoryModel.title', to: 'title'},
+		{from: 'directoryModel.path', to: 'titleBelow'}
 	],
 	events: {
 		onReady: '',
@@ -78,6 +122,7 @@ module.exports = kind({
 		this.set('modelKey', this.generateModelKey());
 	},
 	generateModelKey: function(inPath) {
+		console.log('fileServerHost:', this.app.get('fileServerHost'));
 		return this.app.get('fileServerHost') + (inPath || this.get('path'));
 	},
 	eventVars: function (sender, ev) {
@@ -85,7 +130,7 @@ module.exports = kind({
 	},
 	reload: function(sender, ev) {
 		var modelKey = this.get('modelKey'),
-			m = enyo.store.find(mdlDirectory, function (el, index, arr) {
+			m = Store.find(mdlDirectory, function (el, index, arr) {
 				return el.get(el.primaryKey) == modelKey;
 			});
 		if (m && m.length > 0) {
@@ -97,6 +142,17 @@ module.exports = kind({
 			}
 		}
 		this.set('directoryLoaded', false);
+	},
+	handleViewTypeChange: function (sender, ev) {
+		var type = ev.content && ev.content.toLowerCase && ev.content.toLowerCase() || this.viewType;
+		// console.log('handleViewTypeChange.ev', type, ev);
+		this.set('viewType', type);
+	},
+	viewTypeChanged: function () {
+		// this.setupDirectoryDisplay();
+		console.log('viewTypeChanged', this.viewType);
+		this.$.directory.set('itemType', this.viewType);
+		this.$.gridSizer.set('showing', (this.viewType == 'grid'));
 	},
 	directoryLoadedChanged: function () {
 		if (!this.get('directoryLoaded')) {
@@ -111,6 +167,19 @@ module.exports = kind({
 		var bgSrc = this.get('backgroundSrc');
 		this.applyStyle('background-image', (bgSrc) ? 'url("' + bgSrc + '")': null);
 	},
+	// gridSizeSliderChanging: function (sender, ev) {
+	// 	this.gridSizeSliderChanged.apply(this, arguments);
+	// },
+	gridSizeSliderChanged: function (sender, ev) {
+		if (ev.value) {
+			this.set('gridSize', ev.value);
+		}
+	},
+	gridSizeChanged: function () {
+		this.$.directory.set('minItemHeight', this.gridSize + 90);
+		this.$.directory.set('minItemWidth', this.gridSize);
+		this.$.directory.render();
+	},
 	storeFetch: function(inOptions) {
 		if (!inOptions.path ||
 			!inOptions.storeModel ||
@@ -119,12 +188,15 @@ module.exports = kind({
 			) {
 			return false;
 		}
-		if (!inOptions.fail) {
-			inOptions.fail = function() {};
+		// if (!inOptions.source) {
+		// 	inOptions.source = 'NocheSource';
+		// }
+		if (!inOptions.error) {
+			inOptions.error = function() {};
 		}
 		// console.log('storeFetch:inOptions.path:', inOptions.path);
 		var modelKey = inOptions.path ? this.generateModelKey(inOptions.path) : this.get('modelKey'),
-			m = enyo.store.find(inOptions.storeModel, function (elem) { console.log('find fun', arguments); return elem.get(elem.get('primaryKey')) == modelKey; });
+			m = Store.find(inOptions.storeModel, function (elem) { console.log('find fun', arguments); return elem.get(elem.get('primaryKey')) == modelKey; });
 			// m = enyo.store.find(inOptions.storeModel, { key: modelKey });
 
 		console.log('storeFetch:modelKey:', modelKey);
@@ -140,93 +212,145 @@ module.exports = kind({
 			// we need to set the model here to something new... otherwise when we go to fetch it will be wrong, i think...
 		}
 		else {
-			m = this.createComponent({name: modelKey, url: inOptions.path, kind: inOptions.componentModel}, {owner: this.owner});
+			m = this.createComponent({name: modelKey, url: inOptions.path, kind: inOptions.componentModel, app: this.app}, {owner: this.owner});
 			console.log('storeFetch:modelId:', m.id, 'V.S. modelKey:', modelKey);
 		}
 		console.log('Model doesn\'t exist yet. Creating for "%s" ...', inOptions.path);
 		m.fetch({
+			url: inOptions.url,
+			// source: inOptions.source,
 			success: util.bind(this, function(inObj,inBindOptions,inData) {
 				console.log('Model fetched successfully. Args:', inData, m.at(0));
 				inOptions.success.call(this, m.at(0) || inData);
 			}),
-			fail: util.bind(this, function(inObj,inBindOptions,inData) {
-				// console.log('Model fetch FAILED. Args:', inObj,inBindOptions,inData);
-				inOptions.fail.apply(this, arguments);
+			error: util.bind(this, function(inObj,inBindOptions,inData) {
+				console.log('Model fetch FAILED. Args:', arguments);
+				inOptions.error.apply(this, arguments);
 				// mi.destroy();
 			})
 		});
 		return true;
 	},
+	// setupDirectoryDisplay: function () {
+	// 	// var path = this.get('path');
+	// 	// this.destroyClientControls();
+	// 	var type = this.viewType && this.viewType.toLowerCase() || 'list',
+	// 		di;
+
+	// 	// if ((type == 'grid' && this.$.directory instanceof DirectoryGrid) || type == 'list' && this.$.directory instanceof DirectoryList) {
+	// 	// 	// Our type matches our kind
+	// 	// 	// do nothing
+	// 	// } else {
+	// 	// 	// no match, destroy and recreate as correct kind.
+	// 	// 	this.destroyClientControls();
+	// 	// 	di = this.createComponent(type == 'grid' ? this.gridComponent : this.listComponent);
+	// 	// 	this.$.gridSizer.set('showing', (type == 'grid'));
+	// 	// }
+
+	// 	// this.$.directory.set('model', this.directoryModel );
+	// 	// this.gridSizeChanged();
+	// 	// this.$.directory.render();
+
+	// 	// this.$.directory.set('itemType', type);
+	// },
 
 	assignPanelContents: function() {
 		var path = this.get('path');
 		if (this.get('directoryLoaded')) {
-			// console.log('Not necessary to fetch, already loaded...');
+			console.log('Not necessary to fetch, already loaded...');
 			return true;
 		}
-		// else {
-			// console.log('Must fetch new directory index for %s.', path);
-		// }
+		else {
+			console.log('Must fetch new directory index for %s.', path);
+		}
 		this.storeFetch({
 			path: path,
+			url: path,
 			storeModel: mdlDirectory,
 			componentModel: mdlFileSystem,
-			success: function(inModel) {
+			success: function(inDirectoryModel) {
+				this.set('model', inDirectoryModel);
 				var di,
-					bitMediaFolder = inModel.get('hasMedia');
+					bitMediaFolder = inDirectoryModel.get('hasMedia');
 
 				if (bitMediaFolder) {
 					this.storeFetch({
-						path: path + (inModel.get('nfo') || 'fail.noNfoFileExists'),
+						path: path + (inDirectoryModel.get('nfo') || 'error.noNfoFileExists'),
 						storeModel: mdlMovie,
 						componentModel: mdlMovieInfo,
 						success: function(inMovieModel) {
-							console.log('Fetch of %s Successful.', path, inModel, 'inMovieModel', inMovieModel);
+							// console.log('Fetch of %s Successful.', arguments[0], arguments);
+							console.log('Fetch of %s Successful.', path, inDirectoryModel, 'inMovieModel', inMovieModel);
+							// debugger;
 							this.$.refreshButton.set('showing', false);
 							this.destroyClientControls();
+							inMovieModel.set('app', this.app);
+							// MovieInfoParasite is ingested by the parent (DirectoryPanel) and is taken over from within
 							di = this.createComponent({
 								name: 'movieInfo',
-								kind: 'B.MovieInfo',
+								kind: MovieInfoParasite,
 								path: path,
-								model: inModel,
+								model: inDirectoryModel,
 								modelMovieInfo: inMovieModel
+
+//
+// Find a way to attach this.app to the model so it can generate URLs based on the setting
+// if there's another way to do this without messing with the model directly, do that instead.
+// Setting attributes on this component seems to do nothing. (are undefined when checked)
+//
+//
+
+								// panel: this,
+								// app: this.app
 							});
 							this.app.setMultiple(this, di.get('parentOptions'));
 							this.app.setMultiple(this.$.header, di.get('headerOptions'));
+							// if (di.headerComponents) {
+							// 	this.headerComponents = di.get('headerComponents');
+							// }
 							// Directly set the fanart
 							this.set('backgroundSrc', di.get('fanartSrc'));
 							di.render();
 						},
-						fail: function(inObj,inBindOptions,inData) {
-							var strMovieName = inModel.get('basename'),
+						error: function(inObj,errNum,inBindOptions,inData) {
+							var strMovieName = inDirectoryModel.get('basename'),
 								title = strMovieName.replace(/\s*\(\d+\)\s*$/, ''),
 								year = strMovieName.match(/\((\d+)\)\s*$/) ? strMovieName.replace(/^.*\((\d+)\)\s*$/, '$1') : '',
-								m = this.createComponent({kind: mdlMovie});
+								m = this.createComponent({kind: mdlMovie, title: title, year: year});
 
-							// console.log('Fetch of %s FAILED.', strMovieName, arguments);
+							console.log('Fetch of %s FAILED.', strMovieName, m);
 
-							m.set('title', title);
-							m.set('year', year);
+							// m.set('title', title);
+							// m.set('year', year);
 
 							// We're just going to run the success, as if it worked, but pass in custom data...
-							inBindOptions.success.call(this, inObj, inBindOptions, m);
+							inBindOptions.success.call(this, this, inBindOptions, m);
 						}
 					});
 				}
 				else {
-					this.set('title', inModel.get('title'));
-					this.set('titleBelow', inModel.get('path'));
-					this.destroyClientControls();
+					this.set('directoryModel', inDirectoryModel);
+					// this.set('title', inDirectoryModel.get('title'));
+					// this.set('titleBelow', inDirectoryModel.get('path'));
+					// this.setupDirectoryDisplay();
+					this.viewTypeChanged();
+					// this.destroyClientControls();
+					console.log('assignPanelContents.success.model:', inDirectoryModel);
 
-					di = this.createComponent({
-						kind: 'B.DirectoryIndex',
-						path: path
-					});
+					// di = this.createComponent({
+					// 	kind: this.viewType == 'grid' ? DirectoryGrid : DirectoryList,
+					// 	path: path
+					// });
 
-					di.set('model', inModel );
-					di.render();
+					// di.set('model', inDirectoryModel );
+					this.$.directory.set('path', path );
+					this.$.directory.set('model', inDirectoryModel );
+					// di.render();
 				}
 				this.doDirectoryLoaded();
+			},
+			error: function () {
+				console.log('Error - mdlDirectory:', arguments);
 			}
 		});
 		return true;

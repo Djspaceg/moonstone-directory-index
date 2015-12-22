@@ -1,3 +1,5 @@
+require('enyo-ilib');
+
 var
 	ready = require('enyo/ready');
 

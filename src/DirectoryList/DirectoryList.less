@@ -1,0 +1,40 @@
+.directory-index-row {
+	font-family: "MuseoSans 500";
+	// position: absolute;
+	// top: 0;
+
+	.moon-icon, {
+		height: 45px;
+		margin-top: 0;
+		margin-bottom: 0;
+		&.small {
+			height: 32px;
+		}
+	}
+	.moon-icon {
+		opacity: 0.61;
+	}
+	&.spotlight .moon-icon {
+		opacity: 1;
+	}
+	.moon-icon,
+	.moon-icon.small {
+		background-position: center center;
+		background-size: contain;
+	}
+	// .moon-marquee {
+	// 	vertical-align: text-top;
+	// }
+	.row-title,
+	.row-size,
+	.row-date-mod {
+		padding-left: 1ex;
+		padding-right: 1ex;
+		box-sizing: border-box;
+	}
+	.row-size,
+	.row-date-mod {
+		font-family: "MuseoSans 100";
+		text-align: right;
+	}
+}

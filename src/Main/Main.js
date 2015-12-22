@@ -1,7 +1,9 @@
 var
 	kind = require('enyo/kind'),
 	util = require('enyo/utils'),
-	ImageView = require('enyo/ImageView');
+	Control = require('enyo/Control'),
+	ImageView = require('enyo/Image');
+	// ImageView = require('enyo/ImageView');
 
 var
 	Button = require('moonstone/Button'),
@@ -20,12 +22,13 @@ var
 	VideoInfoHeader = require('moonstone-extra/VideoInfoHeader');
 
 var
-	MainView = require('../MainView'),
 	MediaInfo = require('../MediaInfo'),
+	MovieInfo = require('../MovieInfo'),
+	ChannelInfo = require('moonstone-extra/ChannelInfo'),
 	DirectoryPanel = require('../DirectoryPanel');
 
 module.exports = kind({
-	name: MainView,
+	name: 'MainView',
 	classes: 'moon enyo-fit enyo-unselectable',
 	components: [
 		{
@@ -41,23 +44,24 @@ module.exports = kind({
 					{
 						name: 'playerMediaInfo',
 						kind: MediaInfo,
-						// classes: 'moon-2h',
-						// channelNo: '13',
-						// channelName: 'AMC',
+						channelNo: '789-123',
+						channelName: 'AMC',
+						channelDesc: 'KRON-HD',
+						channelMoreDesc: '4:30 - 5:30PM',
 						components: [
 							// {name: 'playerPoster', kind: 'moon.Image', src: '', classes: 'player-poster'},
-							// {content: '3D'},
-							// {content: 'Live'},
-							// {content: 'REC 08:22', classes: 'moon-video-player-info-redicon '}
+							{content: '3D'},
+							{content: 'Live'},
+							{content: 'REC 08:22', classes: 'moon-video-player-info-redicon '}
 						]
 					},
 					{
 						name: 'playerHeader',
-						kind: VideoInfoHeader
-						// title: 'Downton Abbey - Extra Title',
+						kind: VideoInfoHeader,
+						title: 'Downton Abbey - Extra Title',
 						// subTitle: 'Mon June 21, 7:00 - 8:00pm',
 						// subSubTitle: 'R - TV 14, V, L, SC',
-						// description: 'The series, set in the Youkshire country estate of Downton Abbey, depicts the lives of the aristocratic Crawley famiry and'
+						description: 'The series, set in the Youkshire country estate of Downton Abbey, depicts the lives of the aristocratic Crawley famiry and'
 					}
 				]},
 				{kind: VideoInfoBackground, orient: 'right', background: true, components: [
@@ -68,6 +72,7 @@ module.exports = kind({
 				// {kind: 'moon.IconButton', src: '$lib/moonstone/images/video-player/icon-placeholder.png'}
 			]
 		},
+
 		{name: 'pictureViewer', kind: ImageView, classes: 'picture-viewer enyo-fit', src:''},
 		{
 			name: 'drawers',
@@ -89,7 +94,7 @@ module.exports = kind({
 								{classes: 'enyo-border-box', components: [
 									{name: 'serverItem', kind: Item, content: 'serverName'}
 								], bindings: [
-									{from: '.model.title', to: '.$.serverItem.content'}
+									{from: 'model.title', to: '$.serverItem.content'}
 								]}
 							]}
 						]}
@@ -137,20 +142,29 @@ module.exports = kind({
 		{from: 'movieInfo.videoSrc',	to: '$.player.src'},
 		{from: 'movieInfo.posterSrc',	to: '$.player.poster'},
 		{from: 'movieInfo.posterSrc',	to: '$.playerMediaInfo.posterSrc'},
-		{from: 'movieInfo.title',		to: '$.playerHeader.title'},
-		{from: 'movieInfo.subtitle',	to: '$.playerHeader.subTitle'},
-		{from: 'movieInfo.plot',		to: '$.playerHeader.description'}
+		{from: 'modelMovieInfo.suptitle',	to: '$.playerHeader.title'},
+		// {from: 'modelMovieInfo.subtitle',	to: '$.playerHeader.subTitle'},
+		{from: 'modelMovieInfo.plot',		to: '$.playerHeader.description'},
+		{from: 'modelMovieInfo.year',		to: '$.playerMediaInfo.channelNo'},
+		{from: 'modelMovieInfo.subtitle',	to: '$.playerMediaInfo.channelName'},
+		{from: 'modelMovieInfo.genre',	to: '$.playerMediaInfo.channelDesc'}
 	],
 	create: function() {
-		this.inherited(arguments);
-		this.app.prepareServersCollection();
+		Control.prototype.create.apply(this, arguments);
+		console.log('server:', this.app.get('server'));
+		// this.chooseServer( this.app.get('server') );
+
+	// 	this.inherited(arguments);
+	// 	this.app.prepareServersCollection();
 	},
 	rendered: function () {
 		// Do before render
 
-		this.inherited(arguments);
+		// this.inherited(arguments);
+		Control.prototype.rendered.apply(this, arguments);
 		// Do after render
 		// this.generatePanelsFromPath();
+		// Choosing a server invokes a panel reflow
 		this.chooseServer( this.app.get('server') );
 	},
 
@@ -284,11 +298,12 @@ module.exports = kind({
 	},
 
 	//* Media and File Handlers
-	handlePlay: function(inSender, inEvent) {
-		var objMovieInfo = inEvent.originator;
-		if (objMovieInfo.kind === 'B.MovieInfo') {
-			// console.log('playMovie:this:', this, 'movieInfo:', objMovieInfo, objMovieInfo.get('videoSrc'));
+	handlePlay: function(inSender, ev) {
+		var objMovieInfo = ev.originator;
+		if (objMovieInfo.kind === MovieInfo) {
+			console.log('playMovie:this:', this, 'movieInfo:', objMovieInfo, objMovieInfo.get('videoSrc'));
 			this.set('movieInfo', objMovieInfo);
+			this.set('modelMovieInfo', ev.modelMovieInfo);
 
 			this.$.playerMediaInfo.clearBadges();
 			if (objMovieInfo.get('mpaa')) {

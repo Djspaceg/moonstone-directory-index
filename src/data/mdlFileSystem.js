@@ -6,9 +6,13 @@ var
 	mdlDirectory = require('./mdlDirectory'),
 	NocheCollection = require('./NocheCollection');
 
+var
+	NocheSource = require('./NocheSource');
+
+new NocheSource({name: 'NocheSource'});
+
 module.exports = kind({
 	name: 'mdlFileSystem',
-	// kind: 'enyo.Collection',
 	kind: NocheCollection,
 	model: mdlDirectory,
 	options: {

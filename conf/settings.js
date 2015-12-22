@@ -1,4 +1,4 @@
-var Settings;
+var Settings = {};
 
 Settings.Main = {
 	// Name of our directory browser
