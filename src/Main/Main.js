@@ -118,7 +118,7 @@ module.exports = kind({
 				}
 			],
 			components: [
-				{name: 'panels', kind: Panels, pattern: 'activity', classes: 'enyo-fit', wrap: true, useHandle: true}
+				{name: 'panels', kind: Panels, pattern: 'activity', classes: 'enyo-fit', wrap: true, useHandle: true, popOnBack: true}
 			]
 		}
 	],
@@ -149,52 +149,34 @@ module.exports = kind({
 		{from: 'modelMovieInfo.subtitle',	to: '$.playerMediaInfo.channelName'},
 		{from: 'modelMovieInfo.genre',	to: '$.playerMediaInfo.channelDesc'}
 	],
-	create: function() {
-		Control.prototype.create.apply(this, arguments);
+	// create: function() {
+		// Control.prototype.create.apply(this, arguments);
 		// console.log('server:', this.app.get('server'));
-		// this.chooseServer( this.app.get('server') );
-
-	// 	this.inherited(arguments);
-	// 	this.app.prepareServersCollection();
-	},
+		// this.app.prepareServersCollection();
+	// },
 	rendered: function () {
 		// Do before render
-
-		// this.inherited(arguments);
 		Control.prototype.rendered.apply(this, arguments);
 		// Do after render
-		// this.generatePanelsFromPath();
-		// Choosing a server invokes a panel reflow
 		this.chooseServer( this.app.get('server') );
 	},
-
-	/**
-	 *
-	 * Try and make it so when you hit the back browser button,
-	 * or put in a different #, it just goes directly to that set of panes.
-	 *
-	 */
-
-	// changePath:
-
 	generatePanelsFromPath: function () {
-		// this.inherited(arguments);
-
 		// Take our path array and generate some panels using it
-		var locPath = this.app.$.router.location();
-		var ps = this.createDirectoryPanels(locPath);
-		console.log('generatePanelsFromPath:', this);
-		var shouldTransition = (this.$.panels.getActive().get('path').length < locPath.length);
-		// debugger;
-		// var ps = this.createDirectoryPanels(this.app.get('locPathArray'));
-		this.$.panels.pushPanels(ps, null, {targetIndex: -1, transition: shouldTransition});
+		var locPath = this.app.$.router.location(),
+			ps = this.createDirectoryPanels(locPath),
+			activePanel = this.$.panels.getActive(),
+			shouldTransition = (activePanel && activePanel.get('path').length < locPath.length) || false;
 
+		console.log('generatePanelsFromPath:', locPath);
+
+		if (ps.length) {
+			this.$.panels.pushPanels(ps, null, {targetIndex: -1, transition: shouldTransition});
+			console.log('Panel Created for :', locPath);
+		}
 		// Manually fire the assign function, since we won't have a transition to rely on with only one panel.
 		if (this.$.panels.getPanels().length <= 1) {
-			// this.assignPanelContents(this.$.panels.getActive());
 			this.$.panels.getActive().doReady();
 		}
-		console.log('Panel Created for :', locPath);
 	},
 	eventVars: function(sender, ev) {
 		console.log(ev.type, '-> sender:', sender, 'ev:',ev);
@@ -210,7 +192,6 @@ module.exports = kind({
 		}
 	},
 	drawerChanged: function(inName, inActivationButton) {
-		// debugger;
 		this.$[inActivationButton].setShowing(!this.$[inName].getOpen());
 	},
 	openDrawerServers: function() {
@@ -253,7 +234,6 @@ module.exports = kind({
 		this.$.serverPopupButton.set('content', 'Server: ' + inServerModel.get('title'));
 		this.app.set('server', inServerModel);
 		this.$.panels.destroyClientControls();
-		// this.generatePanelsFromPath();
 	},
 	handleRemoveServer: function(sender, ev) {
 		var list = this.$.serverDataList,
@@ -287,18 +267,17 @@ module.exports = kind({
 		var panels = ev.originator,
 			p = panels.getActive();
 
-		if (ev.toIndex < ev.fromIndex) {
-			// console.log('We removed a panel and went back to index: %s; from: %s;', ev.toIndex, ev.fromIndex);
-			// debugger;
-			panels.popPanels(ev.toIndex + 1);
-		}
+		// if (ev.toIndex < ev.fromIndex) {
+		// 	// console.log('We removed a panel and went back to index: %s; from: %s;', ev.toIndex, ev.fromIndex);
+		// 	panels.popPanels(ev.toIndex + 1);
+		// }
 		// else if (ev.toIndex > ev.fromIndex) {
 			// console.log('We loaded a new panel at index: %s;', ev.toIndex, ev);
 		// }
 		// else {
 			// console.log('We reloaded the same panel at index: %s;', ev.toIndex);
 		// }
-		this.app.set('locPath', p.path);
+		this.app.set('locPath', p.get('path'));
 
 		p.doReady();
 	},
