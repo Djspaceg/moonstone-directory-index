@@ -12,6 +12,8 @@ module.exports = kind({
 	primaryKey: 'path',
 	parse: function (data) {
 		data = this.prepareTitles(data);
+		// data.app = this.app;
+		// console.log('movie.prepare:', data, this, this.app);
 		return data;
 	},
 	prepareTitles: function (data) {

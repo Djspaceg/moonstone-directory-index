@@ -119,12 +119,12 @@ module.exports = kind({
 			{name: 'Fantasy'},
 			{name: 'Science Fiction'}
 		]));
-		this.set('modelKey', this.generateModelKey());
+		// this.set('modelKey', this.generateModelKey());
 	},
-	generateModelKey: function(inPath) {
-		console.log('fileServerHost:', this.app.get('fileServerHost'));
-		return this.app.get('fileServerHost') + (inPath || this.get('path'));
-	},
+	// generateModelKey: function(inPath) {
+	// 	// console.log('fileServerHost:', this.app.get('fileServerHost'));
+	// 	return this.app.get('fileServerHost') + (inPath || this.get('path'));
+	// },
 	eventVars: function (sender, ev) {
 		console.log(ev.type, '-> sender:', sender, 'ev:',ev);
 	},
@@ -150,7 +150,7 @@ module.exports = kind({
 	},
 	viewTypeChanged: function () {
 		// this.setupDirectoryDisplay();
-		console.log('viewTypeChanged', this.viewType);
+		// console.log('viewTypeChanged', this.viewType);
 		this.$.directory.set('itemType', this.viewType);
 		this.$.gridSizer.set('showing', (this.viewType == 'grid'));
 	},
@@ -195,11 +195,12 @@ module.exports = kind({
 			inOptions.error = function() {};
 		}
 		// console.log('storeFetch:inOptions.path:', inOptions.path);
-		var modelKey = inOptions.path ? this.generateModelKey(inOptions.path) : this.get('modelKey'),
+		// var modelKey = inOptions.path ? this.generateModelKey(inOptions.path) : this.get('modelKey'),
+		var modelKey = this.get('modelKey'),
 			m = Store.find(inOptions.storeModel, function (elem) { console.log('find fun', arguments); return elem.get(elem.get('primaryKey')) == modelKey; });
 			// m = enyo.store.find(inOptions.storeModel, { key: modelKey });
 
-		console.log('storeFetch:modelKey:', modelKey);
+		// console.log('storeFetch:modelKey:', modelKey);
 		if (m && (m.euid || m.length)) {
 			// console.log('Path found in store:', inOptions.path, m);
 			inOptions.success.call(this, m);
@@ -213,18 +214,18 @@ module.exports = kind({
 		}
 		else {
 			m = this.createComponent({name: modelKey, url: inOptions.path, kind: inOptions.componentModel, app: this.app}, {owner: this.owner});
-			console.log('storeFetch:modelId:', m.id, 'V.S. modelKey:', modelKey);
+			// console.log('storeFetch:modelId:', m.id, 'V.S. modelKey:', modelKey);
 		}
 		console.log('Model doesn\'t exist yet. Creating for "%s" ...', inOptions.path);
 		m.fetch({
 			url: inOptions.url,
 			// source: inOptions.source,
 			success: util.bind(this, function(inObj,inBindOptions,inData) {
-				console.log('Model fetched successfully. Args:', inData, m.at(0));
+				// console.log('Model fetched successfully. Args:', inData, m.at(0));
 				inOptions.success.call(this, m.at(0) || inData);
 			}),
 			error: util.bind(this, function(inObj,inBindOptions,inData) {
-				console.log('Model fetch FAILED. Args:', arguments);
+				// console.log('Model fetch FAILED. Args:', arguments);
 				inOptions.error.apply(this, arguments);
 				// mi.destroy();
 			})
@@ -280,7 +281,7 @@ module.exports = kind({
 						componentModel: mdlMovieInfo,
 						success: function(inMovieModel) {
 							// console.log('Fetch of %s Successful.', arguments[0], arguments);
-							console.log('Fetch of %s Successful.', path, inDirectoryModel, 'inMovieModel', inMovieModel);
+							// console.log('Fetch of %s Successful.', path, inDirectoryModel, 'inMovieModel', inMovieModel);
 							// debugger;
 							this.$.refreshButton.set('showing', false);
 							this.destroyClientControls();
@@ -318,7 +319,7 @@ module.exports = kind({
 								year = strMovieName.match(/\((\d+)\)\s*$/) ? strMovieName.replace(/^.*\((\d+)\)\s*$/, '$1') : '',
 								m = this.createComponent({kind: mdlMovie, title: title, year: year});
 
-							console.log('Fetch of %s FAILED.', strMovieName, m);
+							// console.log('Fetch of %s FAILED.', strMovieName, m);
 
 							// m.set('title', title);
 							// m.set('year', year);
@@ -335,7 +336,7 @@ module.exports = kind({
 					// this.setupDirectoryDisplay();
 					this.viewTypeChanged();
 					// this.destroyClientControls();
-					console.log('assignPanelContents.success.model:', inDirectoryModel);
+					// console.log('assignPanelContents.success.model:', inDirectoryModel);
 
 					// di = this.createComponent({
 					// 	kind: this.viewType == 'grid' ? DirectoryGrid : DirectoryList,

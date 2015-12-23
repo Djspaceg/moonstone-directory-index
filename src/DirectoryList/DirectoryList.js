@@ -47,7 +47,7 @@ var itemTypes = {
 		spacing: 0,
 		columns: 1,
 		components: [
-			{kind: Item, classes: 'directory-index-row enyo-fit', style: 'bottom: initial;',
+			{kind: Item, classes: 'directory-index-row enyo-fit',// style: 'bottom: initial;',
 				mixins: [FileSupport],
 				components: [
 					{kind: FittableColumns, components: [

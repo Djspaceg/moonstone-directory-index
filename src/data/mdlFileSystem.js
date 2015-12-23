@@ -30,8 +30,7 @@ module.exports = kind({
 	parse: function (data) {
 		// the data comes back as an object with a property that is the
 		data.filesystem[0].app = this.app;
-		console.log('mdlFileSystem: B.NocheCollection:', this);
-		// debugger;
+		// console.log('mdlFileSystem: B.NocheCollection:', this);
 		return data.filesystem;
 	}
 });

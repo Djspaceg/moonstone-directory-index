@@ -15,7 +15,7 @@ var
 	Application = require('enyo/Application'),
 	Collection = require('enyo/Collection'),
 	util = require('enyo/utils'),
-	Router = require('./Router');
+	enyoRouter = require('enyo/Router');
 
 // var
 // 	ilib = require('enyo-ilib');
@@ -25,12 +25,29 @@ var
 	Settings = require('../conf/settings'),
 	Server = require('./data/Server');
 
+var Router = kind({
+	name: 'B.Router',
+	kind: enyoRouter,
+	useHistory: true,
+	routes: [
+		{path: ':', handler: 'handlePath', 'default': true}
+	],
+	events: {
+		onPathChange: ''
+	},
+	handlePath: function (path) {
+		console.log('loadPath:inPath: "%s";', arguments, this.location());
+		// this.doPathChange({path: path});
+		this.app.view.generatePanelsFromPath();
+	}
+});
+
 module.exports = kind({
 	name: 'B.Application',
 	kind: Application,
 	view: MainView,
 	components: [
-		{name: 'router', kind: Router}
+		{name: 'router', kind: Router, triggerOnStart: true}
 	],
 	servers: null,
 	sources: [],
@@ -39,12 +56,12 @@ module.exports = kind({
 		sourceCount: 0,
 		locDir: '',
 		locPath: '',
-		locPathArray: function() {
-			// var arr = this.getPathArray( this.get("locPath") );
-			// console.log("locPathArray:", arr, this.get("locPath"));
-			// return arr;
-			return this.getPathArray( this.get('locPath') );
-		},
+		// locPathArray: function() {
+		// 	// var arr = this.getPathArray( this.get("locPath") );
+		// 	// console.log("locPathArray:", arr, this.get("locPath"));
+		// 	// return arr;
+		// 	return this.getPathArray( this.get('locPath') );
+		// },
 		titleBase: 'Moonstone Directory Index',
 		titleDelimiter: ' - ',
 		fileServerHostname: '',
@@ -58,12 +75,12 @@ module.exports = kind({
 		}
 	},
 	computed: {
-		locPathArray: ['locPath'],
+		// locPathArray: ['locPath'],
 		fileServerHost: ['fileServerHostname', 'fileServerPort']
 	},
-	handlers: [
-		{onPathChange: 'handlePathChange'}
-	],
+	// handlers: [
+	// 	{onPathChange: 'handlePathChange'}
+	// ],
 	// Load in our settings
 	mixins: [
 		Settings.Main
@@ -84,12 +101,12 @@ module.exports = kind({
 	// 		this.localeChanged(ilib.getLocale(), this.locale);
 	// 	}
 	// },
-	handlePathChange: function (sender, ev) {
-		console.log('handlePathChange:', ev);
-		this.set('locPath', ev.path );
-		// debugger;
-		return true;
-	},
+	// handlePathChange: function (sender, ev) {
+	// 	console.log('handlePathChange:', ev);
+	// 	this.set('locPath', ev.path );
+	// 	// debugger;
+	// 	return true;
+	// },
 	setPageTitle: function (strTitle) {
 		document.title = (strTitle ? (strTitle + this.get('titleDelimiter')) : '') + this.get('titleBase');
 	},

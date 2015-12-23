@@ -151,7 +151,7 @@ module.exports = kind({
 	],
 	create: function() {
 		Control.prototype.create.apply(this, arguments);
-		console.log('server:', this.app.get('server'));
+		// console.log('server:', this.app.get('server'));
 		// this.chooseServer( this.app.get('server') );
 
 	// 	this.inherited(arguments);
@@ -175,24 +175,29 @@ module.exports = kind({
 	 *
 	 */
 
-	generatePanelsFromPath: function() {
+	// changePath:
+
+	generatePanelsFromPath: function () {
 		// this.inherited(arguments);
 
 		// Take our path array and generate some panels using it
 		var locPath = this.app.$.router.location();
-		var ps = this.createDirectoryPanels(this.app.getPathArray(locPath));
+		var ps = this.createDirectoryPanels(locPath);
+		console.log('generatePanelsFromPath:', this);
+		var shouldTransition = (this.$.panels.getActive().get('path').length < locPath.length);
+		// debugger;
 		// var ps = this.createDirectoryPanels(this.app.get('locPathArray'));
-		this.$.panels.pushPanels(ps, null, {targetIndex: -1, transition: false});
+		this.$.panels.pushPanels(ps, null, {targetIndex: -1, transition: shouldTransition});
 
 		// Manually fire the assign function, since we won't have a transition to rely on with only one panel.
 		if (this.$.panels.getPanels().length <= 1) {
 			// this.assignPanelContents(this.$.panels.getActive());
 			this.$.panels.getActive().doReady();
 		}
-		console.log('Panel Create:', this);
+		console.log('Panel Created for :', locPath);
 	},
-	eventVars: function(inSender, inEvent) {
-		console.log(inEvent.type, '-> inSender:', inSender, 'inEvent:',inEvent);
+	eventVars: function(sender, ev) {
+		console.log(ev.type, '-> sender:', sender, 'ev:',ev);
 	},
 	openDrawer: function(inName) {
 		this.$[inName].setOpen(true);
@@ -221,7 +226,7 @@ module.exports = kind({
 		this.closeDrawer('filterDrawer');
 	},
 
-	handleAddServer: function(inSender, inEvent) {
+	handleAddServer: function(sender, ev) {
 		if (!this.$.addInput.getValue()) {
 			// this.$.result.setContent('Please insert content value.');
 			return;
@@ -230,17 +235,17 @@ module.exports = kind({
 		picker.createComponent({content:this.$.addInput.getValue()}).render();
 		// this.$.result.setContent(''' + this.$.addInput.getValue() + '' is added to ' + picker.name);
 	},
-	handleSelectedServer: function(inSender, inEvent) {
-		if (inEvent.originator.get('active')) {
+	handleSelectedServer: function(sender, ev) {
+		if (ev.originator.get('active')) {
 			this.$.removeServerButton.set('disabled', false);
 		}
 		else {
 			this.$.removeServerButton.set('disabled', true);
 		}
 	},
-	handleChooseServer: function(inSender, inEvent) {
-		if (inEvent.originator.model) {
-			this.chooseServer(inEvent.originator.model);
+	handleChooseServer: function(sender, ev) {
+		if (ev.originator.model) {
+			this.chooseServer(ev.originator.model);
 		}
 		this.$.serverPopup.closePopup();
 	},
@@ -248,9 +253,9 @@ module.exports = kind({
 		this.$.serverPopupButton.set('content', 'Server: ' + inServerModel.get('title'));
 		this.app.set('server', inServerModel);
 		this.$.panels.destroyClientControls();
-		this.generatePanelsFromPath();
+		// this.generatePanelsFromPath();
 	},
-	handleRemoveServer: function(inSender, inEvent) {
+	handleRemoveServer: function(sender, ev) {
 		var list = this.$.serverDataList,
 			sel = list.get('selected');
 		if (sel) {
@@ -264,33 +269,34 @@ module.exports = kind({
 	},
 
 	//* Panels Handlers
-	handlePanelReady: function(inSender, inEvent) {
-		// inEvent.originator.assignPanelContents();
-		inEvent.originator.doReady();
+	handlePanelReady: function(sender, ev) {
+		// ev.originator.assignPanelContents();
+		ev.originator.doReady();
 	},
-	handleOpenDirectory: function(inSender, inEvent) {
+	handleOpenDirectory: function(sender, ev) {
 		// create a new panel and initialize it
-		var p = this.createDirectoryPanel({path: inEvent.file.get('path')});
-		this.$.panels.pushPanel(p);
+		this.app.set('locPath', ev.file.get('path') );
+		// var p = this.createDirectoryPanel({path: ev.file.get('path')});
+		// this.$.panels.pushPanel(p);
 		return true;
 	},
-	handleTransitionStart: function(inSender, inEvent) {
-		console.log('customTransitionStart', inSender, inEvent, inSender.getIndex(), inSender.getPanels() );
+	handleTransitionStart: function(sender, ev) {
+		console.log('customTransitionStart', sender, ev, sender.getIndex(), sender.getPanels() );
 	},
-	handleTransitionFinish: function(inSender, inEvent) {
-		var panels = inEvent.originator,
+	handleTransitionFinish: function(sender, ev) {
+		var panels = ev.originator,
 			p = panels.getActive();
 
-		if (inEvent.toIndex < inEvent.fromIndex) {
-			// console.log('We removed a panel and went back to index: %s; from: %s;', inEvent.toIndex, inEvent.fromIndex);
+		if (ev.toIndex < ev.fromIndex) {
+			// console.log('We removed a panel and went back to index: %s; from: %s;', ev.toIndex, ev.fromIndex);
 			// debugger;
-			panels.popPanels(inEvent.toIndex + 1);
+			panels.popPanels(ev.toIndex + 1);
 		}
-		// else if (inEvent.toIndex > inEvent.fromIndex) {
-			// console.log('We loaded a new panel at index: %s;', inEvent.toIndex, inEvent);
+		// else if (ev.toIndex > ev.fromIndex) {
+			// console.log('We loaded a new panel at index: %s;', ev.toIndex, ev);
 		// }
 		// else {
-			// console.log('We reloaded the same panel at index: %s;', inEvent.toIndex);
+			// console.log('We reloaded the same panel at index: %s;', ev.toIndex);
 		// }
 		this.app.set('locPath', p.path);
 
@@ -298,7 +304,7 @@ module.exports = kind({
 	},
 
 	//* Media and File Handlers
-	handlePlay: function(inSender, ev) {
+	handlePlay: function(sender, ev) {
 		var objMovieInfo = ev.originator;
 		if (objMovieInfo.kind === MovieInfo) {
 			console.log('playMovie:this:', this, 'movieInfo:', objMovieInfo, objMovieInfo.get('videoSrc'));
@@ -314,12 +320,12 @@ module.exports = kind({
 			this.$.player.play();
 		}
 	},
-	handleOpen: function(inSender, inEvent) {
+	handleOpen: function(sender, ev) {
 		// this.doOpen({file: this})
-		var file = inEvent.file;
+		var file = ev.file;
 		// console.log('file:', file);
 		if (file.get('isDir') && !file.get('hasIndex')) {
-			// this.openDirectory(inSender, inEvent);
+			// this.openDirectory(sender, ev);
 			this.doOpenDirectory({file: file});
 			return true;
 		}
@@ -339,11 +345,11 @@ module.exports = kind({
 		// console.log('goToHref',this, this.get('path'), this.get('title'), this.$.title.content, 'test');
 		return true;
 	},
-	next: function(inSender, inEvent) {
+	next: function(sender, ev) {
 		this.$.panels.next();
 		return true;
 	},
-	back: function(inSender, inEvent) {
+	back: function(sender, ev) {
 		this.$.panels.popPanel();
 		return true;
 	},
@@ -355,29 +361,57 @@ module.exports = kind({
 		this.$.pictureViewer.set('showing', false);
 		this.$.panels.set('showing', false);
 	},
+	getPanelKey: function(path) {
+		// console.log('fileServerHost:', this.app.get('fileServerHost'));
+		return this.app.get('fileServerHost') + path;
+	},
+	getPanelByKey: function (key) {
+		var i, panel,
+			panelsList = this.$.panels.getPanels();
+		for (i = 0; (panel = panelsList[i]); i++) {
+			if (panel.get('modelKey') == key) {
+				// panel already exists
+				return panel;
+			}
+		}
+		return;
+	},
 	createDirectoryPanel: function(inOptions) {
-		if (!inOptions) {
-			inOptions = { path: '/' };
-		}
+		if (!inOptions) { inOptions = {}; }
+		if (!inOptions.path) { inOptions.path = '/'; }
+		if (!inOptions.title) { inOptions.title = '/Home'; }
+
+		// var i,
+		// 	modelKey = this.getPanelKey(inOptions.path),
+		// 	panelsList = this.$.panels.getPanels();
+
+
 		var p = util.clone(this.panelTemplate);
-		if (inOptions.initialTitle) {
-			p.title = inOptions.initialTitle;
-		}
-		p.path = inOptions.path;
+		util.mixin(p, inOptions);
+		// p.title = inOptions.title || '/Home';
+		// p.path = inOptions.path;
+		// p.modelKey = modelKey;
+
 		return p;
 	},
-	createDirectoryPanels: function(inPathArray) {
-		if (!inPathArray || !util.isArray(inPathArray)) {
-			inPathArray = [''];
+	createDirectoryPanels: function(path) {
+		var pathArray = this.app.getPathArray(path);
+		if (!pathArray || !util.isArray(pathArray)) {
+			pathArray = [''];
 		}
 		// Take our path array and generate some panels using it
-		var ps = [],
-			path = '';
+		var p, dirName, key,
+			ps = [],
+			dirPath = '';
 		// Paths are fully wrapped in slashes: /dir1/dir2/
-		for (var i = 0; i < inPathArray.length; i++) {
-			var dirName = inPathArray[i];
-			path+= dirName + '/';
-			ps.push(this.createDirectoryPanel({path: path, initialTitle: dirName || '/Home'}));
+		for (var i = 0; i < pathArray.length; i++) {
+			dirName = pathArray[i];
+			dirPath+= dirName + '/';
+			key = this.getPanelKey(dirPath);
+			if (!this.getPanelByKey(key)) {
+				p = this.createDirectoryPanel({path: dirPath, title: dirName, modelKey: key});
+				ps.push(p);
+			}
 		}
 		return ps;
 	}
