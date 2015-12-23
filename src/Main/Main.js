@@ -340,10 +340,6 @@ module.exports = kind({
 		this.$.pictureViewer.set('showing', false);
 		this.$.panels.set('showing', false);
 	},
-	getPanelKey: function(path) {
-		// console.log('fileServerHost:', this.app.get('fileServerHost'));
-		return this.app.get('fileServerHost') + path;
-	},
 	getPanelByKey: function (key) {
 		var i, panel,
 			panelsList = this.$.panels.getPanels();
@@ -386,7 +382,7 @@ module.exports = kind({
 		for (var i = 0; i < pathArray.length; i++) {
 			dirName = pathArray[i];
 			dirPath+= dirName + '/';
-			key = this.getPanelKey(dirPath);
+			key = this.app.getModelKey(dirPath);
 			if (!this.getPanelByKey(key)) {
 				p = this.createDirectoryPanel({path: dirPath, title: dirName, modelKey: key});
 				ps.push(p);

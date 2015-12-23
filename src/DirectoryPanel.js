@@ -180,53 +180,53 @@ module.exports = kind({
 		this.$.directory.set('minItemWidth', this.gridSize);
 		this.$.directory.render();
 	},
-	storeFetch: function(inOptions) {
-		if (!inOptions.path ||
-			!inOptions.storeModel ||
-			!inOptions.componentModel ||
-			!inOptions.success
+	storeFetch: function (opts) {
+		if (!opts.path ||
+			!opts.storeModel ||
+			!opts.componentModel ||
+			!opts.success
 			) {
 			return false;
 		}
-		// if (!inOptions.source) {
-		// 	inOptions.source = 'NocheSource';
+		// if (!opts.source) {
+		// 	opts.source = 'NocheSource';
 		// }
-		if (!inOptions.error) {
-			inOptions.error = function() {};
+		if (!opts.error) {
+			opts.error = function() {};
 		}
-		// console.log('storeFetch:inOptions.path:', inOptions.path);
-		// var modelKey = inOptions.path ? this.generateModelKey(inOptions.path) : this.get('modelKey'),
-		var modelKey = this.get('modelKey'),
-			m = Store.find(inOptions.storeModel, function (elem) { console.log('find fun', arguments); return elem.get(elem.get('primaryKey')) == modelKey; });
-			// m = enyo.store.find(inOptions.storeModel, { key: modelKey });
+		// console.log('storeFetch:opts.path:', opts.path);
+		// This is needed because sometimes the model we're searching for is not the panel's model.
+		var modelKey = opts.path ? this.app.getModelKey(opts.path) : this.get('modelKey'),
+			m = Store.find(opts.storeModel, function (elem) { console.log('find fun', arguments); return elem.get(elem.get('primaryKey')) == modelKey; });
+			// m = enyo.store.find(opts.storeModel, { key: modelKey });
 
 		// console.log('storeFetch:modelKey:', modelKey);
 		if (m && (m.euid || m.length)) {
-			// console.log('Path found in store:', inOptions.path, m);
-			inOptions.success.call(this, m);
+			// console.log('Path found in store:', opts.path, m);
+			opts.success.call(this, m);
 			return true;
 		}
 
-		// console.log('Path NOT found in store:', inOptions.path);
+		// console.log('Path NOT found in store:', opts.path);
 		if (this.owner.$[modelKey]) {
 			m = this.owner.$[modelKey];
 			// we need to set the model here to something new... otherwise when we go to fetch it will be wrong, i think...
 		}
 		else {
-			m = this.createComponent({name: modelKey, url: inOptions.path, kind: inOptions.componentModel, app: this.app}, {owner: this.owner});
+			m = this.createComponent({name: modelKey, url: opts.path, kind: opts.componentModel, app: this.app}, {owner: this.owner});
 			// console.log('storeFetch:modelId:', m.id, 'V.S. modelKey:', modelKey);
 		}
-		console.log('Model doesn\'t exist yet. Creating for "%s" ...', inOptions.path);
+		console.log('Model doesn\'t exist yet. Creating for "%s" ...', opts.path);
 		m.fetch({
-			url: inOptions.url,
-			// source: inOptions.source,
-			success: util.bind(this, function(inObj,inBindOptions,inData) {
-				// console.log('Model fetched successfully. Args:', inData, m.at(0));
-				inOptions.success.call(this, m.at(0) || inData);
+			url: opts.url,
+			// source: opts.source,
+			success: util.bind(this, function (inObj, inBindOptions, inData) {
+				console.log('Model fetched successfully. Args:', inData, m.at(0));
+				opts.success.call(this, m.at(0) || inData);
 			}),
-			error: util.bind(this, function(inObj,inBindOptions,inData) {
-				// console.log('Model fetch FAILED. Args:', arguments);
-				inOptions.error.apply(this, arguments);
+			error: util.bind(this, function (inObj, inBindOptions, inData) {
+				console.log('Model fetch FAILED. Args:', arguments);
+				opts.error.apply(this, arguments);
 				// mi.destroy();
 			})
 		});
@@ -275,13 +275,14 @@ module.exports = kind({
 					bitMediaFolder = inDirectoryModel.get('hasMedia');
 
 				if (bitMediaFolder) {
+					console.log('Working withh a media folder, fetching NFO.');
 					this.storeFetch({
 						path: path + (inDirectoryModel.get('nfo') || 'error.noNfoFileExists'),
 						storeModel: mdlMovie,
 						componentModel: mdlMovieInfo,
 						success: function(inMovieModel) {
 							// console.log('Fetch of %s Successful.', arguments[0], arguments);
-							// console.log('Fetch of %s Successful.', path, inDirectoryModel, 'inMovieModel', inMovieModel);
+							console.log('Fetch of %s Successful.', path, inDirectoryModel, 'inMovieModel', inMovieModel);
 							// debugger;
 							this.$.refreshButton.set('showing', false);
 							this.destroyClientControls();
@@ -293,16 +294,6 @@ module.exports = kind({
 								path: path,
 								model: inDirectoryModel,
 								modelMovieInfo: inMovieModel
-
-//
-// Find a way to attach this.app to the model so it can generate URLs based on the setting
-// if there's another way to do this without messing with the model directly, do that instead.
-// Setting attributes on this component seems to do nothing. (are undefined when checked)
-//
-//
-
-								// panel: this,
-								// app: this.app
 							});
 							this.app.setMultiple(this, di.get('parentOptions'));
 							this.app.setMultiple(this.$.header, di.get('headerOptions'));

@@ -116,6 +116,10 @@ module.exports = kind({
 		this.setPageTitle( this.getPrettyPath( locpath ) );
 		this.$.router.trigger({location: locpath, change: true});
 	},
+	getModelKey: function(path) {
+		// console.log('fileServerHost:', this.app.get('fileServerHost'));
+		return this.get('fileServerHost') + path;
+	},
 	getPathArray: function (path) {
 		if (typeof path == 'undefined') {
 			return [''];
