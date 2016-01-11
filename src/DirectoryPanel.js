@@ -8,6 +8,7 @@ var
 var
 	Divider = require('moonstone/Divider'),
 	IconButton = require('moonstone/IconButton'),
+	ToggleButton = require('moonstone/ToggleButton'),
 	ListActions = require('moonstone/ListActions'),
 	Scroller = require('moonstone/Scroller'),
 	ToggleItem = require('moonstone/ToggleItem'),
@@ -27,6 +28,23 @@ var
 	// DirectoryGrid = require('./DirectoryGrid'),
 	DirectoryList = require('./DirectoryList');
 
+
+/*
+A directory panel relates to a path in some way, whether that path is a folder or a file.
+
+Folder panels can take the standard form, a directory list, OR can be customized by a parasite kind.
+Parasite kinds latch onto the basic panel and use it as a starting point to customize layout and add their own content. These work similar to mixins but know about their specific host only and can only work in the context of their known host.
+
+File panels show basic content that shouldn't or doesn't need to be fullscreen. This could be a text file or a small picture (if the dimensions can be known ahead of time)
+For media type files (pictures and videos), links or buttons to them should open them directly in the basement layer/player, so they're fullscreen.
+This does mean that knowledge of the item must be known ahead of time to make the right decision when tapping the item's link. Luckily this is provided by the Noche server via the isMedia:true property on the model.
+
+The file model houses the basic information about the file. Name, path, contentType, contents
+contentType stores the named identifier for the kind of content: "folder", "media", or a mime type.
+
+*/
+
+
 module.exports = kind({
 	name: 'B.DirectoryPanel',
 	kind: Panel,
@@ -34,6 +52,8 @@ module.exports = kind({
 	title: 'Loading...',
 	path: null,
 	directoryLoaded: false,
+	gridCaptionShowing: true,
+	gridSubCaptionShowing: true,
 	published: {
 		modelKey: '',
 		backgroundSrc: null,
@@ -46,7 +66,11 @@ module.exports = kind({
 			{content: 'Grid'}
 		]},
 		// {name: 'gridSizer', kind: Slider, classes: 'small', showPercentage: false, value: 6, min: 4, max: 12, onChanging: 'gridSizeSliderChanging', onChange: 'gridSizeSliderChanged'},
-		{name: 'gridSizer', kind: Slider, classes: 'small', showPercentage: false, value: 180, min: 100, max: 360, onChanging: 'gridSizeSliderChanging', onChange: 'gridSizeSliderChanged'},
+		{name: 'gridControls', showing: false, components: [
+			{kind: ToggleButton, content: 'Show Name', small: true, value: true, ontap: 'handleShowNameTap'},
+			{kind: ToggleButton, content: 'Show Size', small: true, value: true, ontap: 'handleShowSizeTap'},
+			{kind: Slider, classes: 'small', showPercentage: false, value: 180, min: 100, max: 360, onChanging: 'gridSizeSliderChanging', onChange: 'gridSizeSliderChanged'}
+		]},
 		{classes: 'toolbar', components: [
 			{kind: IconButton, name: 'refreshButton', icon: '&#10227;', classes: 'icon-refresh', ontap: 'reload'}
 		]},
@@ -148,11 +172,19 @@ module.exports = kind({
 		// console.log('handleViewTypeChange.ev', type, ev);
 		this.set('viewType', type);
 	},
+	handleShowNameTap: function (sender, ev) {
+		// console.log('handleShowNameTap:', sender.value);
+		this.set('gridCaptionShowing', sender.value);
+	},
+	handleShowSizeTap: function (sender, ev) {
+		// console.log('handleShowSizeTap:', sender.value);
+		this.set('gridSubCaptionShowing', sender.value);
+	},
 	viewTypeChanged: function () {
 		// this.setupDirectoryDisplay();
 		// console.log('viewTypeChanged', this.viewType);
 		this.$.directory.set('itemType', this.viewType);
-		this.$.gridSizer.set('showing', (this.viewType == 'grid'));
+		this.$.gridControls.set('showing', (this.viewType == 'grid'));
 	},
 	directoryLoadedChanged: function () {
 		if (!this.get('directoryLoaded')) {
@@ -208,20 +240,21 @@ module.exports = kind({
 		}
 
 		// console.log('Path NOT found in store:', opts.path);
-		if (this.owner.$[modelKey]) {
-			m = this.owner.$[modelKey];
+		if (this.$[modelKey]) {
+			m = this.$[modelKey];
 			// we need to set the model here to something new... otherwise when we go to fetch it will be wrong, i think...
+			// console.log('Found model on owner - storeFetch:modelId:', m.id, 'V.S. modelKey:', modelKey);
 		}
 		else {
-			m = this.createComponent({name: modelKey, url: opts.path, kind: opts.componentModel, app: this.app}, {owner: this.owner});
+			m = this.createComponent({name: modelKey, url: opts.path, kind: opts.componentModel, app: this.app});
 			// console.log('storeFetch:modelId:', m.id, 'V.S. modelKey:', modelKey);
 		}
-		console.log('Model doesn\'t exist yet. Creating for "%s" ...', opts.path);
+		// console.log('Model doesn\'t exist yet. Creating for "%s" ...', opts.path);
 		m.fetch({
 			url: opts.url,
 			// source: opts.source,
 			success: util.bind(this, function (inObj, inBindOptions, inData) {
-				console.log('Model fetched successfully. Args:', inData, m.at(0));
+				// console.log('Model fetched successfully. Args:', inData, m.at(0));
 				opts.success.call(this, m.at(0) || inData);
 			}),
 			error: util.bind(this, function (inObj, inBindOptions, inData) {
@@ -258,12 +291,12 @@ module.exports = kind({
 	assignPanelContents: function() {
 		var path = this.get('path');
 		if (this.get('directoryLoaded')) {
-			console.log('Not necessary to fetch, already loaded...');
+			// console.log('Not necessary to fetch, already loaded...');
 			return true;
 		}
-		else {
-			console.log('Must fetch new directory index for %s.', path);
-		}
+		// else {
+		// 	console.log('Must fetch new directory index for %s.', path);
+		// }
 		this.storeFetch({
 			path: path,
 			url: path,

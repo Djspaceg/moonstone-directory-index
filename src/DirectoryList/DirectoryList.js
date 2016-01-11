@@ -39,6 +39,10 @@ var
 // 	]
 // });
 
+var noSizeForDirs = function(val) {
+	return this.model.get('isDir') ? '' : val;
+};
+
 var itemTypes = {
 	list: {
 		itemHeight: 62,
@@ -60,7 +64,7 @@ var itemTypes = {
 				bindings: [
 					{from: 'model.icon', to: '$.icon.src', transform: function(val) { return '\'' + val + '\''; }},
 					{from: 'model.name', to: '$.title.content'},
-					{from: 'model.prettySize', to: '$.size.content'},
+					{from: 'model.prettySize', to: '$.size.content', transform: noSizeForDirs},
 					{from: 'model.prettyLastModified', to: '$.lastModified.content'}
 				]
 			}
@@ -77,19 +81,23 @@ var itemTypes = {
 			{kind: GridListImageItem, imageSizing: 'contain', placeholder: null, style: 'position: absolute; top: 0',
 				mixins: [FileSupport],
 				bindings: [
+					{from: 'owner.gridCaptionShowing', to: 'useCaption'},
+					{from: 'owner.gridSubCaptionShowing', to: 'useSubCaption'},
+
+
+					// These above two work well, except that as new grid image items are created
+					// after scrolling, their useCaption property isn't respected and the field
+					// shows, even though the class is still gone.
+
+
 					{from: 'model.icon', to: 'source'},
 					{from: 'model.name', to: 'caption'},
-					{from: 'model.prettySize', to: 'subCaption', transform: function(val) { return this.model.get('isDir') ? '' : val; }}
+					{from: 'model.prettySize', to: 'subCaption', transform: noSizeForDirs}
 				]
 			}
 		]
 	}
 };
-
-// function getItemTypeComponents (type) {
-// 	console.log('getItemTypeComponents:', [itemTypes[type]]);
-// 	return type && itemTypes[type] && [itemTypes[type]];
-// }
 
 module.exports = kind({
 	name: 'B.DirectoryList',
@@ -97,7 +105,6 @@ module.exports = kind({
 	itemType: 'list',
 	bindings: [
 		{from: 'model.contents', to: 'collection'}
-		// {from: 'itemType', to: 'components', transform: getItemTypeComponents}
 	],
 	create: function () {
 		NewDataList.prototype.create.apply(this, arguments);
@@ -105,12 +112,9 @@ module.exports = kind({
 	},
 	itemTypeChanged: function () {
 		var type = this.itemType;
-		// if (this.collection && this.collection.destroy) {
-		// 	this.collection.destroy();
-		// }
 		if (type && itemTypes[type]) {
-			for (var key in itemTypes[type]) {
-				this.set(key, itemTypes[type][key]);
+			for (var prop in itemTypes[type]) {
+				this.set(prop, itemTypes[type][prop]);
 			}
 		}
 	}

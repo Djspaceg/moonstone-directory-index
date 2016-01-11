@@ -2,8 +2,8 @@ var
 	kind = require('enyo/kind'),
 	util = require('enyo/utils'),
 	Control = require('enyo/Control'),
-	ImageView = require('enyo/Image');
-	// ImageView = require('enyo/ImageView');
+	// ImageView = require('enyo/Image');
+	ImageView = require('layout/ImageView');
 
 var
 	Button = require('moonstone/Button'),
@@ -16,7 +16,7 @@ var
 	IconButton = require('moonstone/IconButton'),
 	Item = require('moonstone/Item'),
 	Panel = require('moonstone-extra/Panel'),
-	Panels = require('moonstone-extra/Panels'),
+	MoonPanels = require('moonstone-extra/Panels'),
 	VideoPlayer = require('moonstone-extra/VideoPlayer'),
 	VideoInfoBackground = require('moonstone-extra/VideoInfoBackground'),
 	VideoInfoHeader = require('moonstone-extra/VideoInfoHeader');
@@ -24,8 +24,19 @@ var
 var
 	MediaInfo = require('../MediaInfo'),
 	MovieInfo = require('../MovieInfo'),
-	ChannelInfo = require('moonstone-extra/ChannelInfo'),
+	// ChannelInfo = require('moonstone-extra/ChannelInfo'),
 	DirectoryPanel = require('../DirectoryPanel');
+
+var Panels = kind({
+	kind: MoonPanels,
+	events: {
+		onPanelsShowing: ''
+	},
+	showingChanged: function (sender, ev) {
+		this.inherited(arguments);
+		this.doPanelsShowing({showing: this.showing});
+	}
+});
 
 module.exports = kind({
 	name: 'MainView',
@@ -129,6 +140,7 @@ module.exports = kind({
 		onOpenDirectory: ''
 	},
 	handlers: {
+		onPanelsShowing: 'handlePanelsShowing',
 		onOpenDirectory: 'handleOpenDirectory',
 		onPanelReady: 'handlePanelReady',
 		// onTransitionStart: 'handleTransitionStart',
@@ -171,7 +183,7 @@ module.exports = kind({
 
 		if (ps.length) {
 			this.$.panels.pushPanels(ps, null, {targetIndex: -1, transition: shouldTransition});
-			console.log('Panel Created for :', locPath);
+			// console.log('Panel Created for :', locPath);
 		}
 		// Manually fire the assign function, since we won't have a transition to rely on with only one panel.
 		if (this.$.panels.getPanels().length <= 1) {
@@ -180,6 +192,10 @@ module.exports = kind({
 	},
 	eventVars: function(sender, ev) {
 		console.log(ev.type, '-> sender:', sender, 'ev:',ev);
+	},
+	handlePanelsShowing: function (sender, ev) {
+		this.$.drawers.$.activator.set('showing', ev.showing);
+		// console.log('handlePanelsShowing:', this.$.drawers.$.activator);
 	},
 	openDrawer: function(inName) {
 		this.$[inName].setOpen(true);

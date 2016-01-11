@@ -36,7 +36,7 @@ var Router = kind({
 		onPathChange: ''
 	},
 	handlePath: function (path) {
-		console.log('loadPath:inPath: "%s";', arguments, this.location());
+		// console.log('loadPath:inPath: "%s";', arguments, this.location());
 		// this.doPathChange({path: path});
 		this.app.view.generatePanelsFromPath();
 	}
